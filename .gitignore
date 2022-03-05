@@ -1,0 +1,7 @@
+data
+**/node_modules
+**/config.json
+src/app/build
+src/app/.env.local
+src/app/.env.*.local
+src/app/.DS_Store

@@ -1,0 +1,21 @@
+{
+  "name": "alfred-hm-api",
+  "version": "1.0.0",
+  "description": "An api to control and manage smart home devices",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/app.js",
+    "start": "node src/app.js"
+  },
+  "author": "Gabriele Morisano",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.3",
+    "mqtt": "^4.3.6",
+    "socket.io": "^4.4.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}

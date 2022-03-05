@@ -1,0 +1,31 @@
+version: "3.3"
+services:
+  web:
+    image: nginx
+    container_name: ${APP_CODENAME}-reverse-proxy
+    ports:
+      - 8080:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  app:
+    container_name: ${APP_CODENAME}-frontend
+    build:
+      context: ../src/app
+      dockerfile: dev.Dockerfile
+    volumes:
+      - ../src/app:/app
+  api:
+      container_name: ${APP_CODENAME}-api
+      build:
+        context: ../src/api
+        dockerfile: dev.Dockerfile
+      volumes:
+        - ../src/api:/workapi
+        - ../data/config.json:/workapi/config.json
+  mqtt:
+    container_name: ${APP_CODENAME}-mqtt-broker
+    image: "eclipse-mosquitto:2.0.14"
+    volumes:
+      - ../mosquitto.conf:/mosquitto/config/mosquitto.conf
+    ports:
+      - 1883:1883

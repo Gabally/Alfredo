@@ -1,0 +1,18 @@
+version: "1.0"
+services:
+  web:
+    image: nginx
+    ports:
+      - 8080:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  api:
+    build: ./src/api
+  app:
+    build: ./src/app
+  mqtt:
+    image: "eclipse-mosquitto:2.0.14"
+    volumes:
+      - ./data/mosquitto:/mosquitto
+    ports:
+      - 1883:1883

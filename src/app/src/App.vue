@@ -10,16 +10,39 @@ export default {
 }
 </script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap');
+
+@font-face {
+    font-family: 'bitpapmedium';
+    src: url('./assets/fonts/bitpap-webfont.woff2') format('woff2'),
+         url('./assets/fonts/bitpap-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
 
 * {
+  font-family: bitpapmedium, Arial, Helvetica, sans-serif;
   margin: 0px;
   padding: 0px;
-  font-family: 'Nunito', sans-serif, Arial, Helvetica;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
+  color: #242d36;
   -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background: url("./assets/imgs/bg.jpg");
+  background-size: 192px;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.crisp-image {
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 
 .form {

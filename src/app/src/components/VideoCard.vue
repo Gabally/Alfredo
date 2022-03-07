@@ -1,14 +1,11 @@
 <template>
-  <div @click="viewFullScreen" class="card">
+  <div class="card">
     <div class="title">
         {{ name }}
     </div>
-    <img class="video" :src="still" alt="">
+    <img @click="viewFullScreen" class="video" :src="still" alt="">
     <div v-if="showFullscreen" class="fullscreen a-center">
-      <div class="close-feed" @click="closeFullScreen">
-        ❌
-      </div>
-      <div class="obscurator a-center"></div>
+      <div class="obscurator a-center" @click="closeFullScreen"></div>
       <img class="feed" :src="src" alt="">
     </div>
   </div>
@@ -42,28 +39,29 @@ export default {
 
 <style scoped>
 .title {
-    overflow: hidden;
     text-overflow: ellipsis;
     max-width: 120px;
-    margin-bottom: 6px;
+    margin: 10px;
 }
 .card {
-    -webkit-box-shadow: -1px 0px 12px 0px rgba(141,138,235,1);
-    -moz-box-shadow: -1px 0px 12px 0px rgba(141,138,235,1);
-    box-shadow: -1px 0px 12px 0px rgba(141,138,235,1);
     display: flex;
     flex-direction: column;
     width: 200px;
     height: 200px;
     margin: 5px;
-    padding: 10px;
+    padding: 20px;
+    padding-bottom: 25px;
+    font-size: 25px;
     border-radius: 3px;
+    background: url("@/assets/imgs/video-bg.png");
+    background-size: cover;
 }
 
 .video {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    cursor: pointer;
 }
 
 .a-center {

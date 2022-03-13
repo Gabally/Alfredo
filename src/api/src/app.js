@@ -8,6 +8,8 @@ import fetch from "node-fetch";
 import * as wol from "wol";
 import { RTSPStreamer } from "./rtspStream.js";
 import { SonoffController } from "./SonoffController.js";
+import { dataUriToBuffer } from "data-uri-to-buffer";
+import Jimp from "jimp";
 
 let config = utils.loadConfig();
 
@@ -38,11 +40,9 @@ for (const room in config.rooms) {
 
 sonoffs.on("on", (room, name) => {
   io.emit("on", room, name);
-  console.log("on event");
 });
 sonoffs.on("off", (room, name) => {
   io.emit("off", room, name);
-  console.log("off event");
 });
 
 io.use(async (socket, next) => {
@@ -53,15 +53,11 @@ io.use(async (socket, next) => {
     }   
 }).on("connection", (socket) => {
   socket.on("on", (room, device, type) => {
-    console.log(`Turn on the ${type} in the room ${room} with the name ${device}`);
     let { mqtt } = getDevice(room, type, device);
-    console.log(mqtt);
     sonoffs.turnOn(mqtt);
   });
   socket.on("off", (room, device, type) => {
-    console.log(`Turn off the ${type} in the room ${room} with the name ${device}`);
     let { mqtt } = getDevice(room, type, device);
-    console.log(mqtt);
     sonoffs.turnOff(mqtt);
   });
   socket.on("trigger", async (room, device, type) => {
@@ -108,12 +104,51 @@ app.get("/devices", async (req, res) => {
   res.json(rooms);
 });
 
+app.get("/rawconfig", (req, res) => {
+  res.json(config);
+});
+
+app.post("/saveconfig", (req, res) => {
+  let { config } = req.body;
+  try {
+    JSON.parse(config);
+    utils.saveConfig(config);
+    config = utils.loadConfig();
+    res.json({
+      success: true
+    });
+  } catch(e) {
+    console.error("An error occurred while saving the configuration file:");
+    console.error(e);
+    res.status(400).json({
+      success: false,
+      error: "Invalid configuration (JSON error)"
+    });
+  }
+});
+
 app.get("/camerafeed/:room/:camera", (req, res) => {
   if (config.rooms[req.params.room] && config.rooms[req.params.room]["cameras"]) {
     let { feed } = config.rooms[req.params.room]["cameras"].find(camera => camera.name === req.params.camera);
     streamer.pipeStream(feed, res);
   } else {
     res.sendStatus(404);
+  }
+});
+
+app.get("/camerastill/:room/:camera", async (req, res) => {
+  try {
+    if (config.rooms[req.params.room] && config.rooms[req.params.room]["cameras"]) {
+      let { feed } = config.rooms[req.params.room]["cameras"].find(camera => camera.name === req.params.camera);
+      let img = await utils.rtspSnapshot(feed);
+      res.set("Content-Type", "image/jpeg");
+      res.send(img);
+    } else {
+      res.sendStatus(404);
+    }
+  } catch(e) {
+    console.error(e);
+    res.sendStatus(500);
   }
 });
 
@@ -148,6 +183,34 @@ app.post("/logout", async (req, res) => {
       success: false,
       error: JSON.stringify(e)
     });
+  }
+});
+
+app.get("/accounts", async (req, res) => {
+  const accounts = await db.getAllAccounts();
+  res.json(accounts);
+});
+
+app.get("/account", async (req, res) => {
+  let token  = req.headers["token"];
+  res.json(await db.getAccountInfo(token));
+});
+
+app.post("/updatepfp", async (req, res) => {
+  try {
+    let token  = req.headers["token"];
+    let { id } = await db.getAccountInfo(token);
+    let rawImage = dataUriToBuffer(req.body.img);
+    if (id && rawImage) {
+      let image = await Jimp.read(rawImage);
+      await image.writeAsync(`./static/profiles/${id}.jpg`);
+      res.status(200).json({ success: true });
+    } else {
+      res.status(400).json({ success: false });
+    }
+  } catch(e) {
+    console.error(e);
+    res.status(500).json({ success: false });
   }
 });
 

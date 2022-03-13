@@ -1,7 +1,5 @@
 import { spawn } from "child_process";
 import { randomString } from "./utils.js";
-import * as jpeg from "jpeg-js";
-
 export class RTSPStreamer {
     constructor(executable = "ffmpeg") {
         this.executable = executable;
@@ -19,31 +17,38 @@ export class RTSPStreamer {
         res.socket.write(res._header);
         if (!this.streams[rtspurl]) {
             this.streams[rtspurl] = {
-                locks: {},
-                feedproc: spawn(this.executable, ["-i", rtspurl, "-f", "mjpeg", "-"])
+                socks: [],
+                feedproc: spawn(this.executable, ["-loglevel", "quiet","-i", rtspurl, "-f", "mjpeg", "-"])
             }
+            let framebuffer = Buffer.from("");
+            this.streams[rtspurl].feedproc.stdout.on("data", (frame) => {
+                if (frame.length > 1) {
+                    framebuffer = Buffer.concat([framebuffer, frame]);
+                    let offset = frame[frame.length-2].toString(16);
+                    let offset2 = frame[frame.length-1].toString(16);
+                    if(offset == "ff" && offset2 == "d9") {
+                        let pkt = Buffer.concat([
+                            new Buffer.from(`--B\r\nContent-type: image/jpeg\r\nContent-Length: ${framebuffer.length}\r\n\r\n`),
+                            framebuffer
+                        ]);
+                        this.streams[rtspurl].socks.forEach(s => s.socket.write(pkt));
+                        framebuffer = Buffer.from("");
+                    }
+                }
+            });
+            this.streams[rtspurl].feedproc.stderr.on("data", (data) => {
+                this.streams[rtspurl].feedproc.kill("SIGKILL");
+                delete this.streams[rtspurl];
+            });
         }
-        let lock = randomString(10);
-        this.streams[rtspurl].locks[lock] = true;
-        //this.streams[rtspurl].feedproc.stderr.on("data", (err) => { console.error(err.toString()); });
-        this.streams[rtspurl].feedproc.stdout.on("data", (frame) => {
-            try {
-                //jpeg.decode(frame);
-                const buffer = Buffer.concat([
-                    new Buffer.from("--B\r\n"),
-                    new Buffer.from("Content-type: image/jpeg\r\n\r\n"),
-                    new Buffer.from(`Content-Length: ${frame.length}`),
-                    frame,
-                    new Buffer.from("\r\n")
-                ]);
-                res.socket.write(buffer);
-            } catch(e) {
-     
-            } 
+        let id = randomString(10);
+        this.streams[rtspurl].socks.push({
+            id: id,
+            socket: res.socket
         });
         res.socket.on("close", () => {
-            delete this.streams[rtspurl].locks[lock];
-            if (Object.keys(this.streams[rtspurl].locks).length === 0) {
+            this.streams[rtspurl].socks = this.streams[rtspurl].socks.filter(s => s.id !== id);
+            if (this.streams[rtspurl].socks.length === 0) {
                 this.streams[rtspurl].feedproc.kill("SIGKILL");
                 delete this.streams[rtspurl];
             }

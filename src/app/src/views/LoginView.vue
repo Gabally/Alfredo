@@ -61,10 +61,4 @@ export default {
   width: 30%;
   background: grey;
 }
-
-.error {
-  margin: 5px;
-  color: red;
-  font-weight: bold;
-}
 </style>

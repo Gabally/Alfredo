@@ -52,4 +52,27 @@ export class DB {
         throw "Invalid token provided";
     }
   }
+
+  async getAccountInfo(token) {
+    if (await this.tokenIsValid(token)) {
+      let [rows, fields] = await this.connection.query("SELECT * FROM tokens WHERE token=? LIMIT 1", [token]);
+      if (rows.length > 0) {
+        let who = rows[0]["who"];
+        [rows, fields] = await this.connection.query("SELECT id, username, is_admin, phone_mac FROM users WHERE id=? LIMIT 1", [who]);
+        return rows.length > 0 ? rows[0] : null;
+      }  else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
+  async getAllAccounts() {
+    let [rows, fields] = await this.connection.query(`SELECT (SELECT
+    JSON_PRETTY(JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'username', u.username, 'isAdmin', u.is_admin, 'phone_mac', u.phone_mac, 'logins', l.tokens)))
+    FROM users u
+    LEFT JOIN (SELECT who, JSON_ARRAYAGG(JSON_OBJECT('id', id, 'device', device, 'isMobile', is_mobile)) tokens FROM tokens GROUP BY who) l ON l.who = u.id) AS accounts`);
+    return JSON.parse(rows.length > 0 ? rows[0]["accounts"] : []);
+  }
 }

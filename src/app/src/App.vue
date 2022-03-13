@@ -20,7 +20,6 @@ export default {
 }
 
 * {
-  font-family: bitpapmedium, Arial, Helvetica, sans-serif;
   margin: 0px;
   padding: 0px;
   -webkit-font-smoothing: antialiased;
@@ -30,12 +29,17 @@ export default {
 }
 
 body {
+  font-family: bitpapmedium, Arial, Helvetica, sans-serif;
   background: url("./assets/imgs/bg.jpg");
   background-size: 192px;
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-crisp-edges;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+}
+
+.btn {
+  font-family: bitpapmedium, Arial, Helvetica, sans-serif;
 }
 
 .crisp-image {
@@ -107,5 +111,11 @@ body {
 
 .card {
   float: left;
+}
+
+.error {
+  margin: 5px;
+  color: red;
+  font-weight: bold;
 }
 </style>

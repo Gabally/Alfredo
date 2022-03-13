@@ -2,13 +2,13 @@
   <div>
     <banner-top />
     <div class="nav">
-      <div v-for="room in Object.keys(config)" :key="room" @click="selectedRoom = room" >{{ room }}</div>
+      <div v-bind:class="{'tab-active':(selectedRoom === room)}" v-for="room in Object.keys(config)" :key="room" @click="selectedRoom = room" >{{ room }}</div>
     </div>
     <main v-if="selectedRoom">
       <switch-card @statechange="sendToggle" v-for="sn in config[selectedRoom].sonoffs" :key="sn" type="sonoffs" :name="sn.name" :state="sn.status" />
       <button-card @trigger="sendTrigger(btn.name, 'buttons')" v-for="btn in config[selectedRoom].buttons" :key="btn" :name="btn.name" />
       <button-card @trigger="sendTrigger(wol.name, 'wol')" v-for="wol in config[selectedRoom].wol" :key="wol" :name="wol.name" />
-      <video-card still="https://testimages.org/img/testimages_screenshot.jpg" src="https://testimages.org/img/testimages_screenshot.jpg" v-for="camera in config[selectedRoom].cameras" :key="camera" :name="camera.name" />
+      <video-card :still="`/api/camerastill/${selectedRoom}/${camera.name}`" :src="`/api/camerafeed/${selectedRoom}/${camera.name}`" v-for="camera in config[selectedRoom].cameras" :key="camera" :name="camera.name" />
     </main>
   </div>
 </template>
@@ -100,6 +100,10 @@ export default {
 
 .nav > div:active {
   background: rgb(93, 93, 94);
+}
+
+.tab-active {
+  background: rgba(82, 81, 81, 0.76);
 }
 </style>
 

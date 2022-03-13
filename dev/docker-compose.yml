@@ -20,6 +20,7 @@ services:
       - 8080:80
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../data/static/:/static:ro
   app:
     container_name: ${APP_CODENAME}-frontend
     build:
@@ -35,6 +36,7 @@ services:
       volumes:
         - ../src/api:/workapi
         - ../data/config.json:/workapi/config.json
+        - ../data/static/:/workapi/static
   mqtt:
     container_name: ${APP_CODENAME}-mqtt-broker
     image: eclipse-mosquitto:2.0.14

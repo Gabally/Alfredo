@@ -5,7 +5,7 @@
     </div>
     <div class="actions">
       <img src="@/assets/imgs/icons/notification.png" alt="">
-      <img v-if="isAdmin()" src="@/assets/imgs/icons/settings.png" alt="">
+      <img v-if="isAdmin()" @click="toSettings()" src="@/assets/imgs/icons/settings.png" alt="">
       <img @click="logout()" src="@/assets/imgs/icons/logout.png" alt="">
     </div>
   </div>

@@ -1,29 +1,29 @@
-import { createApp } from 'vue';
-import App from './App.vue';
-import './registerServiceWorker';
-import router from './router';
+import { createApp } from "vue";
+import App from "./App.vue";
+import "./registerServiceWorker";
+import router from "./router";
 
 const app = createApp(App);
 
-app.provide('isAuthenticated', () => {
+app.provide("isAuthenticated", () => {
     return window.localStorage.getItem("token") !== null;
 });
 
-app.provide('getToken', () => {
+app.provide("getToken", () => {
     return window.localStorage.getItem("token");
 });
 
-app.provide('setToken', (token, role) => {
+app.provide("setToken", (token, role) => {
     window.localStorage.setItem("token", token);
     window.localStorage.setItem("isAdmin", role);
 });
 
-app.provide('isAdmin', () => {
+app.provide("isAdmin", () => {
     return window.localStorage.getItem('isAdmin') === "true";
 });
 
 
-app.provide('getJSON', async (url) => {
+app.provide("getJSON", async (url) => {
     let token = window.localStorage.getItem("token");
     if (token) {
         let response = await fetch(url, {
@@ -42,7 +42,7 @@ app.provide('getJSON', async (url) => {
     }
 });
 
-app.provide('postJSON', async (url, body) => {
+app.provide("postJSON", async (url, body) => {
     let token = window.localStorage.getItem("token");
     if (token) {
         let response = await fetch(url, {
@@ -53,15 +53,15 @@ app.provide('postJSON', async (url, body) => {
             },
             body: JSON.stringify(body)
         });
-        if (response.status === 200) {
-            return await response.json();
-        } else if (response.status === 401) {
+        if (response.status === 401) {
             window.localStorage.removeItem("token");
             this.$router.push({ name: "login" });
+        } else {
+            return await response.json();
         }
     } else {
         this.$router.push({ name: "login" });
     }
 });
 
-app.use(router).mount('#app');
+app.use(router).mount("#app");

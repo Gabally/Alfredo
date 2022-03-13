@@ -1,0 +1,191 @@
+<template>
+  <div>
+    <banner-top />
+    <div class="nav">
+      <div @click="selectedTab = 'config'" v-bind:class="{'tab-active':(selectedTab === 'config')}">Devices Configuration</div>
+      <div @click="selectedTab = 'accounts'" v-bind:class="{'tab-active':(selectedTab === 'accounts')}">Account Management</div>
+      <div @click="selectedTab = 'myaccount'" v-bind:class="{'tab-active':(selectedTab === 'myaccount')}">My Account Info</div>
+    </div>
+    <main>
+        <div v-if="selectedTab === 'config'" class="f-center conf-tab" style="flex-direction: column;">
+            <v-ace-editor
+            v-model:value="config"
+            lang="json"
+            theme="chrome"
+            class="json-editor" />
+            <button @click="saveConfig()" class="btn b-ok">Save</button>
+            <div v-if="confok" class="ok">Configuration saved and reloaded successfully</div>
+            <div v-if="conferror" class="error">{{ conferror }}</div>
+        </div>
+        <div v-if="selectedTab === 'accounts' && getAccounts()" class="f-center conf-tab" style="flex-direction: column;">
+          <button class="btn b-ok">New User</button>
+          <user-account v-for="account in accounts" :key="account" :name="account.username" :isAdmin="account.isAdmin" :mac="account.phone_mac" :id="account.id" :logins="account.logins" />
+        </div>
+        <div v-if="selectedTab === 'myaccount' && getAccountInfo()" class="f-center conf-tab" style="flex-direction: column;">
+          <div class="form">
+            <h2>Account:</h2>
+            <img class="pfp" @click="$refs.pfpfile.click()" :src="'/static/profiles/' + ((accountid !== null) ? accountid : 0) + '.jpg'" ref="pfp" @error="loadDefaultPFP()" alt="">
+            <input ref="pfpfile" @change="updatePFP" style="display: none;" type="file">
+            <div>Username: {{ username }}</div>
+            <div>Role: {{ isAdmin ? "Admin User" : "Normal user" }}</div>
+            <div>Phone MAC Address: {{ mymac ? mymac : "None" }}</div>
+          </div>
+        </div>
+    </main>
+  </div>
+</template>
+
+<script>
+import BannerTop from "../components/BannerTop.vue";
+import UserAccount from "../components/UserAccount.vue";
+import { VAceEditor } from "vue3-ace-editor";
+import "ace-builds/src-noconflict/mode-json";
+import "ace-builds/src-noconflict/theme-chrome";
+
+export default {
+  inject: ["getJSON", "isAuthenticated", "postJSON"],
+  name: "SettingsView",
+  components: {
+    BannerTop,
+    VAceEditor,
+    UserAccount
+  },
+  data() {
+    return {
+        selectedTab: "accounts",
+        config: "",
+        conferror: "",
+        confok: false,
+        username: null,
+        accountid: null,
+        accounts: [],
+        isAdmin: false,
+        mymac: ""
+    }
+  },
+  async mounted() {
+    if (!this.isAuthenticated()) {
+      this.$router.push({ name: "login" });
+    }
+    this.config = JSON.stringify(await this.getJSON("/api/rawconfig"), null, 4);
+    
+  },
+  methods: {
+    async saveConfig() {
+      let { success, error } = await this.postJSON("/api/saveconfig", {
+        config: this.config
+      });
+      if (success) {
+        this.confok = true;
+        setTimeout(() => { this.confok = false; }, 5000);
+      } else {
+        this.conferror = error;
+      }
+    },
+    async getAccountInfo() {
+      if (!this.username) {
+        let { username, id, is_admin, phone_mac } = await this.getJSON("/api/account");
+        this.username = username;
+        this.accountid = id;
+        this.isAdmin = is_admin;
+        this.mymac = phone_mac;
+      }
+    },
+    async getAccounts() {
+      if (this.accounts.length === 0) {
+        this.accounts = await this.getJSON("/api/accounts");
+      }
+    },
+    loadDefaultPFP() {
+      this.$refs.pfp.src = `https://avatars.dicebear.com/api/micah/${this.username}.svg`;
+    },
+    updatePFP(event) {
+      const files = event.target.files;
+      const fileReader = new FileReader()
+      fileReader.addEventListener("load", async () => {
+        let { success } = await this.postJSON("/api/updatepfp", {
+          img: fileReader.result
+        });
+        if (!success) {
+          alert("An unknown error occurred while updating the profile picture");
+        } else {
+          this.$refs.pfp.src = `/static/profiles/${this.accountid}.jpg?time=${Date.now()}`;
+        }
+      });
+      fileReader.readAsDataURL(files[0]);
+    }
+  }
+};
+</script>
+
+<style scoped>
+.form * {
+  margin: 10px;
+  font-size: 22px;
+}
+.conf-tab {
+    margin-top: 30px;
+}
+
+.btn {
+    font-size: 25px;
+}
+
+.ok {
+  font-size: 16px;
+  color: rgb(64, 90, 64);
+  background: rgba(88, 224, 88, 0.76);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.error {
+  font-size: 16px;
+  background: rgba(173, 59, 59, 0.76);
+  border-radius: 10px;
+  padding: 10px;
+  color: rgb(66, 55, 55);
+}
+
+.json-editor {
+  height: 500px;
+  width: 80%;
+  font-size: 18px;
+}
+
+.pfp {
+  background: rgb(189, 188, 188);
+  border-radius: 50%;
+  width: 200px;
+  height: 200px;
+  border: 4px solid rgb(202, 202, 202);
+  cursor: pointer;
+  margin: 20px;
+  transition: .3s;
+  object-fit: cover;
+}
+
+.pfp:hover {
+  filter: blur(3px);
+  -webkit-filter: blur(3px);
+}
+
+.pfp:active {
+  transform: translateY(3px);
+}
+
+.form {
+  background: rgb(87, 114, 126);
+  width: 45%;
+}
+
+@media only screen and (max-width: 500px) {
+  .json-editor {
+    width: 97%;
+    font-size: 14px;
+  }
+  .form {
+    width: 80%;
+  }
+}
+</style>

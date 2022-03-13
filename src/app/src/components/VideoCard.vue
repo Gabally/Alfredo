@@ -28,6 +28,7 @@ export default {
     viewFullScreen() {
       this.showFullscreen = true;
       document.body.style.overflow = "hidden";
+      
     },
     closeFullScreen() {
       this.showFullscreen = false;
@@ -91,6 +92,8 @@ export default {
   object-fit: contain;
   border: 2mm ridge rgba(73, 73, 73, 0.76);
   border-radius: 3px;
+  position: relative;
+  z-index: 999999999;
 }
 
 .close-feed {

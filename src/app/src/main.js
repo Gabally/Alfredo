@@ -35,10 +35,10 @@ app.provide("getJSON", async (url) => {
             return await response.json();
         } else if (response.status === 401) {
             window.localStorage.removeItem("token");
-            this.$router.push({ name: "login" });
+            router.push({ name: "login" });
         }
     } else {
-        this.$router.push({ name: "login" });
+        router.push({ name: "login" });
     }
 });
 
@@ -52,6 +52,26 @@ app.provide("postJSON", async (url, body) => {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(body)
+        });
+        if (response.status === 401) {
+            window.localStorage.removeItem("token");
+            this.$router.push({ name: "login" });
+        } else {
+            return await response.json();
+        }
+    } else {
+        this.$router.push({ name: "login" });
+    }
+});
+
+app.provide("deleteReq", async (url) => {
+    let token = window.localStorage.getItem("token");
+    if (token) {
+        let response = await fetch(url, {
+            method: "DELETE",
+            headers: {
+                "token": token
+            }
         });
         if (response.status === 401) {
             window.localStorage.removeItem("token");

@@ -15,7 +15,7 @@ export class DB {
       database: "alfredo",
     });
     await this.connection.query("CREATE TABLE IF NOT EXISTS users (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, username CHAR(200) NOT NULL, password TEXT(1000) NOT NULL, is_admin BOOLEAN NOT NULL, phone_mac CHAR(100))");
-    await this.connection.query("CREATE TABLE IF NOT EXISTS tokens (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, token CHAR(200) NOT NULL, device CHAR(200) NOT NULL, is_mobile BOOLEAN NOT NULL, who INT NOT NULL, CONSTRAINT FK_user_token FOREIGN KEY (who) REFERENCES users(id))");
+    await this.connection.query("CREATE TABLE IF NOT EXISTS tokens (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, token CHAR(200) NOT NULL, device CHAR(200) NOT NULL, is_mobile BOOLEAN NOT NULL, who INT NOT NULL, CONSTRAINT FK_user_token FOREIGN KEY (who) REFERENCES users(id) ON DELETE CASCADE)");
     await this.connection.query("CREATE TABLE IF NOT EXISTS doorbell (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, img CHAR(200) NOT NULL, timestamp DATETIME NOT NULL DEFAULT NOW())");
     let [rows, fields] = await this.connection.query("SELECT * FROM users LIMIT 1");
     if (rows.length === 0) {
@@ -74,5 +74,15 @@ export class DB {
     FROM users u
     LEFT JOIN (SELECT who, JSON_ARRAYAGG(JSON_OBJECT('id', id, 'device', device, 'isMobile', is_mobile)) tokens FROM tokens GROUP BY who) l ON l.who = u.id) AS accounts`);
     return JSON.parse(rows.length > 0 ? rows[0]["accounts"] : []);
+  }
+
+  async deleteLogin(id) {
+    let [rows, fields] = await this.connection.query("DELETE FROM tokens WHERE id=?", [id]);
+    return rows.affectedRows > 0;
+  }
+
+  async deleteAccount(id) {
+    let [rows, fields] = await this.connection.query("DELETE FROM users WHERE id=?", [id]);
+    return rows.affectedRows > 0;
   }
 }

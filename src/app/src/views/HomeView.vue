@@ -8,7 +8,7 @@
       <switch-card @statechange="sendToggle" v-for="sn in config[selectedRoom].sonoffs" :key="sn" type="sonoffs" :name="sn.name" :state="sn.status" />
       <button-card @trigger="sendTrigger(btn.name, 'buttons')" v-for="btn in config[selectedRoom].buttons" :key="btn" :name="btn.name" />
       <button-card @trigger="sendTrigger(wol.name, 'wol')" v-for="wol in config[selectedRoom].wol" :key="wol" :name="wol.name" />
-      <video-card :still="`/api/camerastill/${selectedRoom}/${camera.name}`" :src="`/api/camerafeed/${selectedRoom}/${camera.name}`" v-for="camera in config[selectedRoom].cameras" :key="camera" :name="camera.name" />
+      <video-card :still="`/api/cameras/still/${selectedRoom}/${camera.name}?token=${getToken()}`" :src="`/api/cameras/feed/${selectedRoom}/${camera.name}?token=${getToken()}`" v-for="camera in config[selectedRoom].cameras" :key="camera" :name="camera.name" />
     </main>
   </div>
 </template>

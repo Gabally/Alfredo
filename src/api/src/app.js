@@ -6,12 +6,10 @@ import { DB } from "./db.js";
 import * as useragent from "express-useragent";
 import fetch from "node-fetch";
 import * as wol from "wol";
-import { RTSPStreamer } from "./rtspStream.js";
-import { SonoffController } from "./SonoffController.js";
-import { dataUriToBuffer } from "data-uri-to-buffer";
-import Jimp from "jimp";
+import { SonoffController } from "./devices/SonoffController.js";
+import router from "./router.js";
 
-let config = utils.loadConfig();
+export let config = utils.loadConfig();
 
 const getDevice = (room ,type, device) => {
   let devices = config["rooms"][room][type];
@@ -19,16 +17,19 @@ const getDevice = (room ,type, device) => {
 };
 
 const app = express();
+
 app.use(express.json({ limit: "5mb" }));
+
 app.use(useragent.express());
+
+app.use(router);
+
 const server = http.createServer(app);
 const port = 3000 || process.env.API_PORT;
 
-const db = new DB();
+export const db = new DB();
 
 const io = new Server(server);
-
-const streamer = new RTSPStreamer();
 
 const sonoffs = new SonoffController("mqtt");
 
@@ -102,116 +103,6 @@ app.get("/devices", async (req, res) => {
     }
   }
   res.json(rooms);
-});
-
-app.get("/rawconfig", (req, res) => {
-  res.json(config);
-});
-
-app.post("/saveconfig", (req, res) => {
-  let { config } = req.body;
-  try {
-    JSON.parse(config);
-    utils.saveConfig(config);
-    config = utils.loadConfig();
-    res.json({
-      success: true
-    });
-  } catch(e) {
-    console.error("An error occurred while saving the configuration file:");
-    console.error(e);
-    res.status(400).json({
-      success: false,
-      error: "Invalid configuration (JSON error)"
-    });
-  }
-});
-
-app.get("/camerafeed/:room/:camera", (req, res) => {
-  if (config.rooms[req.params.room] && config.rooms[req.params.room]["cameras"]) {
-    let { feed } = config.rooms[req.params.room]["cameras"].find(camera => camera.name === req.params.camera);
-    streamer.pipeStream(feed, res);
-  } else {
-    res.sendStatus(404);
-  }
-});
-
-app.get("/camerastill/:room/:camera", async (req, res) => {
-  try {
-    if (config.rooms[req.params.room] && config.rooms[req.params.room]["cameras"]) {
-      let { feed } = config.rooms[req.params.room]["cameras"].find(camera => camera.name === req.params.camera);
-      let img = await utils.rtspSnapshot(feed);
-      res.set("Content-Type", "image/jpeg");
-      res.send(img);
-    } else {
-      res.sendStatus(404);
-    }
-  } catch(e) {
-    console.error(e);
-    res.sendStatus(500);
-  }
-});
-
-app.post("/login", async (req, res) => {
-  let { username, password }  = req.body;
-  let device = `${req.useragent.browser} - ${req.useragent.os}`;
-  let [token, isAdmin] = await db.authenticate(username, password, device, req.useragent.isMobile);
-  if (token) {
-    res.json({
-      success: true,
-      token: token,
-      isAdmin: isAdmin
-    });
-  } else {
-    res.json({
-      success: false,
-      error: "Wrong password"
-    });
-  }
-});
-
-app.post("/logout", async (req, res) => {
-  try {
-    let token  = req.headers["token"];
-    await db.logout(token);
-    res.json({
-      success: true
-    });
-  } catch(e) {
-    console.error(e);
-    res.json({
-      success: false,
-      error: JSON.stringify(e)
-    });
-  }
-});
-
-app.get("/accounts", async (req, res) => {
-  const accounts = await db.getAllAccounts();
-  res.json(accounts);
-});
-
-app.get("/account", async (req, res) => {
-  let token  = req.headers["token"];
-  res.json(await db.getAccountInfo(token));
-});
-
-app.post("/updatepfp", async (req, res) => {
-  try {
-    let token  = req.headers["token"];
-    let { id } = await db.getAccountInfo(token);
-    let rawImage = dataUriToBuffer(req.body.img);
-    if (id && rawImage) {
-      let image = await Jimp.read(rawImage);
-      await image.writeAsync(`./static/profiles/${id}.jpg`);
-      res.status(200).json({ success: true });
-    } else {
-      res.status(400).json({ success: false });
-    }
-  } catch(e) {
-    console.error(e);
-    res.status(500).json({ success: false });
-  }
 });
 
 server.listen(port, () => {

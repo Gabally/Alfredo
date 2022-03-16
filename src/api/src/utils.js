@@ -37,9 +37,12 @@ export const compareHash = async (hash, psw) => {
 }
 
 export const randomString = (size) => {
-    return randomBytes(size)
-    .toString("base64")
-    .slice(0, size)
+    let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let str = "";
+    for (let i = 0; i < size; i++) {
+        str += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return str;
 }
 
 export const rtspSnapshot = async (feed) => {

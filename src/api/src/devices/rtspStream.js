@@ -1,5 +1,6 @@
 import { spawn } from "child_process";
-import { randomString } from "./utils.js";
+import { randomString } from "../utils.js";
+
 export class RTSPStreamer {
     constructor(executable = "ffmpeg") {
         this.executable = executable;

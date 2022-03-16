@@ -2,9 +2,9 @@
   <div>
     <banner-top />
     <div class="nav">
-      <div @click="selectedTab = 'config'" v-bind:class="{'tab-active':(selectedTab === 'config')}">Devices Configuration</div>
-      <div @click="selectedTab = 'accounts'" v-bind:class="{'tab-active':(selectedTab === 'accounts')}">Account Management</div>
-      <div @click="selectedTab = 'myaccount'" v-bind:class="{'tab-active':(selectedTab === 'myaccount')}">My Account Info</div>
+      <div @click="gotoConfig()" v-bind:class="{'tab-active':(selectedTab === 'config')}">Devices Configuration</div>
+      <div @click="gotoAccounts()" v-bind:class="{'tab-active':(selectedTab === 'accounts')}">Account Management</div>
+      <div @click="gotoMyAccount()" v-bind:class="{'tab-active':(selectedTab === 'myaccount')}">My Account Info</div>
     </div>
     <main>
         <div v-if="selectedTab === 'config'" class="f-center conf-tab" style="flex-direction: column;">
@@ -17,11 +17,11 @@
             <div v-if="confok" class="ok">Configuration saved and reloaded successfully</div>
             <div v-if="conferror" class="error">{{ conferror }}</div>
         </div>
-        <div v-if="selectedTab === 'accounts' && getAccounts()" class="f-center conf-tab" style="flex-direction: column;">
+        <div v-if="selectedTab === 'accounts'" class="f-center conf-tab" style="flex-direction: column;">
           <button class="btn b-ok">New User</button>
-          <user-account v-for="account in accounts" :key="account" :name="account.username" :isAdmin="account.isAdmin" :mac="account.phone_mac" :id="account.id" :logins="account.logins" />
+          <user-account @statechange="gotoAccounts()" v-for="account in accounts" :key="account" :name="account.username" :isAdmin="account.isAdmin === 1" :mac="account.phone_mac" :id="account.id" :logins="account.logins" />
         </div>
-        <div v-if="selectedTab === 'myaccount' && getAccountInfo()" class="f-center conf-tab" style="flex-direction: column;">
+        <div v-if="selectedTab === 'myaccount'" class="f-center conf-tab" style="flex-direction: column;">
           <div class="form">
             <h2>Account:</h2>
             <img class="pfp" @click="$refs.pfpfile.click()" :src="'/static/profiles/' + ((accountid !== null) ? accountid : 0) + '.jpg'" ref="pfp" @error="loadDefaultPFP()" alt="">
@@ -52,7 +52,7 @@ export default {
   },
   data() {
     return {
-        selectedTab: "accounts",
+        selectedTab: "",
         config: "",
         conferror: "",
         confok: false,
@@ -67,12 +67,29 @@ export default {
     if (!this.isAuthenticated()) {
       this.$router.push({ name: "login" });
     }
-    this.config = JSON.stringify(await this.getJSON("/api/rawconfig"), null, 4);
-    
+    this.gotoAccounts();
   },
   methods: {
+    async gotoConfig() {
+      this.config = JSON.stringify(await this.getJSON("/api/config/raw"), null, 4);
+      this.selectedTab = "config";
+    },
+    async gotoAccounts() {
+      this.accounts = await this.getJSON("/api/accounts/all");
+      this.selectedTab = "accounts";
+    },
+    async gotoMyAccount() {
+      if (!this.username) {
+        let { username, id, is_admin, phone_mac } = await this.getJSON("/api/accounts/my");
+        this.username = username;
+        this.accountid = id;
+        this.isAdmin = is_admin;
+        this.mymac = phone_mac;
+      }
+      this.selectedTab = "myaccount";
+    },
     async saveConfig() {
-      let { success, error } = await this.postJSON("/api/saveconfig", {
+      let { success, error } = await this.postJSON("/api/config/save", {
         config: this.config
       });
       if (success) {
@@ -82,20 +99,6 @@ export default {
         this.conferror = error;
       }
     },
-    async getAccountInfo() {
-      if (!this.username) {
-        let { username, id, is_admin, phone_mac } = await this.getJSON("/api/account");
-        this.username = username;
-        this.accountid = id;
-        this.isAdmin = is_admin;
-        this.mymac = phone_mac;
-      }
-    },
-    async getAccounts() {
-      if (this.accounts.length === 0) {
-        this.accounts = await this.getJSON("/api/accounts");
-      }
-    },
     loadDefaultPFP() {
       this.$refs.pfp.src = `https://avatars.dicebear.com/api/micah/${this.username}.svg`;
     },
@@ -103,7 +106,7 @@ export default {
       const files = event.target.files;
       const fileReader = new FileReader()
       fileReader.addEventListener("load", async () => {
-        let { success } = await this.postJSON("/api/updatepfp", {
+        let { success } = await this.postJSON("/api/accounts/updatepfp", {
           img: fileReader.result
         });
         if (!success) {

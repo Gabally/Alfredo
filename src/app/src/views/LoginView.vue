@@ -14,18 +14,13 @@
 
 <script>
 export default {
-  inject: ["isAuthenticated", "setToken"],
+  inject: ["setToken"],
   name: 'LoginView',
   data() {
     return {
       username: "",
       password: "",
       error: ""
-    }
-  },
-  mounted() {
-    if (this.isAuthenticated()) {
-      this.$router.push({ name: "home" });
     }
   },
   methods: {

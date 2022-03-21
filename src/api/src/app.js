@@ -11,6 +11,8 @@ import router from "./router.js";
 
 export let config = utils.loadConfig();
 
+utils.generateVAPIDKeys();
+
 const getDevice = (room ,type, device) => {
   let devices = config["rooms"][room][type];
   return devices.find(d => d.name === device);

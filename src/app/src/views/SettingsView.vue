@@ -13,12 +13,16 @@
             lang="json"
             theme="chrome"
             class="json-editor" />
-            <button @click="saveConfig()" class="btn b-ok">Save</button>
+            <button @click="saveConfig()" class="btn b-ok">
+              <img src="@/assets/imgs/icons/save.png" alt="">
+            </button>
             <div v-if="confok" class="ok">Configuration saved and reloaded successfully</div>
             <div v-if="conferror" class="error">{{ conferror }}</div>
         </div>
         <div v-if="selectedTab === 'accounts'" class="f-center conf-tab" style="flex-direction: column;">
-          <button class="btn b-ok">New User</button>
+          <button class="btn b-ok" @click="$router.push({ name: 'newuser' })">
+            <img src="@/assets/imgs/icons/newuser.png" alt="">
+          </button>
           <user-account @statechange="gotoAccounts()" v-for="account in accounts" :key="account" :name="account.username" :isAdmin="account.isAdmin === 1" :mac="account.phone_mac" :id="account.id" :logins="account.logins" />
         </div>
         <div v-if="selectedTab === 'myaccount'" class="f-center conf-tab" style="flex-direction: column;">
@@ -43,7 +47,7 @@ import "ace-builds/src-noconflict/mode-json";
 import "ace-builds/src-noconflict/theme-chrome";
 
 export default {
-  inject: ["getJSON", "isAuthenticated", "postJSON"],
+  inject: ["getJSON", "postJSON"],
   name: "SettingsView",
   components: {
     BannerTop,
@@ -64,9 +68,6 @@ export default {
     }
   },
   async mounted() {
-    if (!this.isAuthenticated()) {
-      this.$router.push({ name: "login" });
-    }
     this.gotoAccounts();
   },
   methods: {

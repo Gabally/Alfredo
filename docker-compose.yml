@@ -1,18 +1,43 @@
-version: "1.0"
+version: "3.3"
 services:
   web:
+    container_name: ${APP_CODENAME}-webserver
     image: nginx
     ports:
       - 8080:80
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-  api:
-    build: ./src/api
-  app:
-    build: ./src/app
-  mqtt:
-    image: "eclipse-mosquitto:2.0.14"
+      - ${DATA_FOLDER}/static/:/static:ro
+    build:
+      context: ./src/app
+      dockerfile: Dockerfile
+    restart: always
+  db:
+    container_name: ${APP_CODENAME}-mysqldb
+    user: "${UID}:${GID}"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: alfredo
     volumes:
-      - ./data/mosquitto:/mosquitto
+      - ${DATA_FOLDER}/mysql/my.cnf:/etc/my.cnf
+      - ${DATA_FOLDER}/mysql/data:/var/lib/mysql
+      - ${DATA_FOLDER}/mysql/mysql.log:/var/log/mysql/mysql.log
+    build:
+      context: ./Dockerfiles
+      dockerfile: mysql.Dockerfile
+    restart: always
+  api:
+    container_name: ${APP_CODENAME}-api
+    build: ./src/api
+    restart: always
+    volumes:
+        - ${DATA_FOLDER}/config.json:/api/config.json
+        - ${DATA_FOLDER}/static/:/api/static
+        - ${DATA_FOLDER}/keys/:/api/keys
+  mqtt:
+    container_name: ${APP_CODENAME}-mqtt-broker
     ports:
       - 1883:1883
+    build:
+      context: ./Dockerfiles
+      dockerfile: mosquitto.Dockerfile
+    restart: always

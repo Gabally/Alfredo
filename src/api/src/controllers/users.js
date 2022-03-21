@@ -1,13 +1,17 @@
 import { dataUriToBuffer } from "data-uri-to-buffer";
 import Jimp from "jimp";
 import { db } from "../app.js";
+import * as utils from "../utils.js";
 
 export default {
   async listAccounts(req, res) {
     res.json(await db.getAllAccounts());
   },
-  async getAccountInfo(req, res) {
+  async getMyAccountInfo(req, res) {
     res.json(await db.getAccountInfo(req.headers["token"]));
+  },
+  async getAccountInfo(req, res) {
+    res.json(await db.getAccountInfoByID(req.params.id));
   },
   async updateProfilePicture(req, res) {
     try {
@@ -52,4 +56,32 @@ export default {
       res.status(500).json({ success: false });
     }
   },
+  async createAccount(req, res) {
+    try {
+      let { username, password, mac, isAdmin } = req.body;
+      if (utils.paramsAreValid([username, password, isAdmin])) {
+        await db.createAccount(username, password, mac, isAdmin);
+        res.status(200).json({ success: true });
+      } else {
+        res.status(400).json({ success: false, error: "Missing request parameters" });
+      }
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ success: false, error: "An unknow internal error occurred" });
+    }
+  },
+  async updateAccount(req, res) {
+    try {
+      let { username, mac, isAdmin } = req.body;
+      if (utils.paramsAreValid([req.params.id, username, isAdmin])) {
+        await db.updateAccount(req.params.id, username, mac, isAdmin);
+        res.status(200).json({ success: true });
+      } else {
+        res.status(400).json({ success: false, error: "Missing request parameters" });
+      }
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ success: false, error: "An unknow internal error occurred" });
+    }
+  }
 };

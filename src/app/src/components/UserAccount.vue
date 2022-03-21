@@ -6,11 +6,15 @@
           <div>Username: {{ name }}</div>
           <div>Admin: {{ isAdmin ? 'Yes' : 'No' }} </div>
           <div>Phone MAC Address: {{ mac ? mac : 'None' }} </div>
+          <button @click="$router.push({ name: 'edituser', params: { id: id } })" class="btn b-ok">Edit</button>
           <button @click="deleteAccount()" class="btn danger">Delete</button>
         </div>
     </div>
-    <h3>Logins:</h3>
+    <h3 class="padded">Logins:</h3>
     <div>
+      <div class="padded" v-if="!logins">
+        None
+      </div>
       <div class="f-center" v-for="login in logins" :key="login">
         <div>
           {{ login.device }}
@@ -53,7 +57,7 @@ export default {
     },
     async deleteAccount() {
       if (confirm("Are you sure you want to delete this account ?")) {
-        let { success } = await this.deleteReq(`/api/deleteaccount/${this.id}`);
+        let { success } = await this.deleteReq(`/api/accounts/delete/${this.id}`);
         if (!success) {
           alert("An error occurred while deleting the login token");
         } else {
@@ -82,6 +86,7 @@ export default {
     height: 100px;
     object-fit: cover;
     border-radius: 50%;
+    border: 2px solid rgb(88, 88, 88);
 }
 .profile {
   align-items: center;

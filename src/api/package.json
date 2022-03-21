@@ -21,6 +21,7 @@
     "node-fetch": "^3.2.1",
     "rtsp-relay": "^1.6.1",
     "socket.io": "^4.4.1",
+    "web-push": "^3.4.5",
     "wol": "^1.0.7"
   },
   "devDependencies": {

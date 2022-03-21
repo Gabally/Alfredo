@@ -4,7 +4,7 @@
       Alfredo
     </div>
     <div class="actions">
-      <img src="@/assets/imgs/icons/notification.png" alt="">
+      <img @click="registerNotifications()" src="@/assets/imgs/icons/notification.png" alt="">
       <img v-if="isAdmin()" @click="toSettings()" src="@/assets/imgs/icons/settings.png" alt="">
       <img @click="logout()" src="@/assets/imgs/icons/logout.png" alt="">
     </div>
@@ -13,7 +13,7 @@
 
 <script>
 export default {
-  inject: ["postJSON", "isAdmin"],
+  inject: ["postJSON", "isAdmin", "getJSON"],
   name: 'BannerTop',
   props: {
   },
@@ -33,6 +33,41 @@ export default {
       } else {
         alert(`An error occurred while logging out: ${error}`);
       }
+    },
+    async registerNotifications() {
+      if ("serviceWorker" in navigator) {
+        let { publicKey } = await this.getJSON("/api/notifications/publickey");
+        const registration = await navigator.serviceWorker.register("notification-worker.js", {scope: "/"});
+        const subscription = await registration.pushManager.
+        subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: this.urlBase64ToUint8Array(publicKey)
+        });
+        let { success, error } = await this.postJSON("/api/notifications/add", {
+          subscription: JSON.stringify(subscription)
+        });
+        if (success) {
+          alert("Notifications configured successfully");
+        } else {
+          alert(error);
+        }
+      } else {
+        alert("Error: Your browser doesn't support service workers :(");
+      }
+    },
+    urlBase64ToUint8Array(base64String) {
+      let padding = "=".repeat((4 - base64String.length % 4) % 4);
+      let base64 = (base64String + padding)
+          .replace(/-/g, "+")
+          .replace(/_/g, "/");
+
+      let rawData = window.atob(base64);
+      let outputArray = new Uint8Array(rawData.length);
+
+      for (let i = 0; i < rawData.length; ++i) {
+          outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
     }
   }
 }

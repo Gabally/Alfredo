@@ -11,6 +11,10 @@ export default {
 </script>
 <style>
 
+#app {
+  height: 100vh;
+}
+
 @font-face {
     font-family: 'bitpapmedium';
     src: url('./assets/fonts/bitpap-webfont.woff2') format('woff2'),
@@ -26,6 +30,8 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   color: #242d36;
   -webkit-tap-highlight-color: transparent;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 body {
@@ -36,10 +42,21 @@ body {
   image-rendering: -webkit-crisp-edges;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  margin: 0px;
+  padding: 0px;
 }
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
 
 .btn {
   font-family: bitpapmedium, Arial, Helvetica, sans-serif;
+}
+
+.padded {
+  margin: 10px;
 }
 
 .crisp-image {
@@ -74,6 +91,7 @@ body {
   border: 1px solid rgba(92, 92, 92, 0.61);
   border-radius: 5px;
   padding: 5px;
+  width: 80%;
 }
 
 .txt-field:focus {
@@ -117,5 +135,13 @@ body {
   margin: 5px;
   color: red;
   font-weight: bold;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  margin: 10px;
+  cursor: pointer;
+  border-radius: 5px;   
 }
 </style>

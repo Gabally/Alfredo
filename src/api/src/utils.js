@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { mkdir } from "fs/promises";
 import * as bcrypt from "bcrypt";
-import { randomBytes } from "crypto";
+import webpush from "web-push";
 import { spawn } from "child_process";
 
 export const loadConfig = () => {
@@ -47,9 +47,17 @@ export const randomString = (size) => {
 
 export const rtspSnapshot = async (feed) => {
     return new Promise((resolve, reject) => {
-        let ffmpeg = spawn("ffmpeg", ["-y", "-i", feed, "-ss", "00:00:01.500", "-f", "image2", "-vframes", "1", "-"]);
-        ffmpeg.stdout.on("data", (data) => {
-            resolve(data);
+        let ffmpeg = spawn("ffmpeg", ["-y", "-i", feed, "-ss", "00:00:02.500", "-f", "image2", "-vframes", "1", "-"]);
+        let framebuffer = Buffer.from("");
+        ffmpeg.stdout.on("data", (frame) => {
+            if (frame.length > 1) {
+                framebuffer = Buffer.concat([framebuffer, frame]);
+                let offset = frame[frame.length-2].toString(16);
+                let offset2 = frame[frame.length-1].toString(16);
+                if(offset == "ff" && offset2 == "d9") {
+                    resolve(framebuffer);
+                }
+            }
         });
     });
 }
@@ -57,5 +65,29 @@ export const rtspSnapshot = async (feed) => {
 export const createDirIfNotExists = async (path) => {
     if (!existsSync(path)) {
         await mkdir(path, { recursive: true });
+    }
+}
+
+export const paramsAreValid = (params) => {
+    for (let i = 0; i < params.length; i++) {
+        if (!(params[i] !== undefined && params[i] !== null && params.length > 0)) {
+            return false;
+        }        
+    }
+    return true;
+}
+
+export const generateVAPIDKeys = () => {
+    if (!existsSync("keys/public") || !existsSync("keys/private")) {
+        let { publicKey, privateKey } = webpush.generateVAPIDKeys();
+        writeFileSync("keys/public", publicKey);
+        writeFileSync("keys/private", privateKey);
+    }
+}
+
+export const getVAPIDKeys = () => {
+    return {
+        publicKey: readFileSync("keys/public", "utf-8"),
+        privateKey: readFileSync("keys/private", "utf-8")
     }
 }

@@ -16,7 +16,8 @@ export class DB {
     });
     await this.connection.query("CREATE TABLE IF NOT EXISTS users (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, username CHAR(200) NOT NULL, password TEXT(1000) NOT NULL, is_admin BOOLEAN NOT NULL, phone_mac CHAR(100))");
     await this.connection.query("CREATE TABLE IF NOT EXISTS tokens (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, token CHAR(200) NOT NULL, device CHAR(200) NOT NULL, is_mobile BOOLEAN NOT NULL, who INT NOT NULL, CONSTRAINT FK_user_token FOREIGN KEY (who) REFERENCES users(id) ON DELETE CASCADE)");
-    await this.connection.query("CREATE TABLE IF NOT EXISTS doorbell (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, img CHAR(200) NOT NULL, timestamp DATETIME NOT NULL DEFAULT NOW())");
+    await this.connection.query("CREATE TABLE IF NOT EXISTS notification_subscriptions (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, subscription VARCHAR(500) NOT NULL, who INT NOT NULL, CONSTRAINT FK_user_notification_subscriptions FOREIGN KEY (who) REFERENCES users(id) ON DELETE CASCADE)");
+    await this.connection.query("CREATE TABLE IF NOT EXISTS doorbell (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, img CHAR(200) NOT NULL, timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)");
     let [rows, fields] = await this.connection.query("SELECT * FROM users LIMIT 1");
     if (rows.length === 0) {
       let password = await hashPassword("admin");
@@ -68,6 +69,11 @@ export class DB {
     }
   }
 
+  async getAccountInfoByID(id) {
+    let [rows, fields] = await this.connection.query("SELECT id, username, is_admin, phone_mac FROM users WHERE id=? LIMIT 1", [id]);
+    return rows.length > 0 ? rows[0] : null;
+  }
+
   async getAllAccounts() {
     let [rows, fields] = await this.connection.query(`SELECT (SELECT
     JSON_PRETTY(JSON_ARRAYAGG(JSON_OBJECT('id', u.id, 'username', u.username, 'isAdmin', u.is_admin, 'phone_mac', u.phone_mac, 'logins', l.tokens)))
@@ -84,5 +90,36 @@ export class DB {
   async deleteAccount(id) {
     let [rows, fields] = await this.connection.query("DELETE FROM users WHERE id=?", [id]);
     return rows.affectedRows > 0;
+  }
+
+  async createAccount(username, password, mac, isAdmin) {
+    let passwordHash = await hashPassword(password);
+    let [rows, fields] = await this.connection.query("INSERT INTO users VALUES(NULL, ?, ?, ?, ?)",[username, passwordHash, isAdmin ? 1 : 0, mac]);
+    return rows.affectedRows > 0;
+  }
+
+  async updateAccount(id, username, mac, isAdmin) {
+    let [rows, fields] = await this.connection.query("UPDATE users SET username=?,is_admin=?,phone_mac=? WHERE id=?",[username, isAdmin ? 1 : 0, mac, id]);
+    return rows.affectedRows > 0;
+  }
+
+  async addNotificationSubscription(who, sub) {
+    let [rows, fields] = await this.connection.query("INSERT INTO notification_subscriptions VALUES(NULL, ?, ?)",[sub, who]);
+    return rows.affectedRows > 0;
+  }
+
+  async getNotificationSubscriptions() {
+    let [rows, fields] = await this.connection.query("SELECT subscription FROM notification_subscriptions");
+    return rows.length > 0 ? rows.map(r => r["subscription"]) : [];
+  }
+
+  async newDoorbellEvent(img) {
+    let [rows, fields] = await this.connection.query("INSERT INTO doorbell (img) VALUES(?)", [img]);
+    return rows.affectedRows > 0;
+  }
+
+  async getDoorbellEvents() {
+    let [rows, fields] = await this.connection.query("SELECT * FROM doorbell");
+    return rows;
   }
 }

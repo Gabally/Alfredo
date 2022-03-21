@@ -5,10 +5,6 @@ import router from "./router";
 
 const app = createApp(App);
 
-app.provide("isAuthenticated", () => {
-    return window.localStorage.getItem("token") !== null;
-});
-
 app.provide("getToken", () => {
     return window.localStorage.getItem("token");
 });

@@ -7,6 +7,7 @@ import * as useragent from "express-useragent";
 import fetch from "node-fetch";
 import * as wol from "wol";
 import { SonoffController } from "./devices/SonoffController.js";
+import { ambientSensorsController } from "./devices/ambientSensors.js";
 import router from "./router.js";
 
 export let config = utils.loadConfig();
@@ -38,6 +39,14 @@ const sonoffs = new SonoffController("mqtt");
 for (const room in config.rooms) {
   if (config.rooms[room]["sonoffs"]) {
     config.rooms[room]["sonoffs"].forEach(sn => sonoffs.addSonoff(room, sn.name, sn.mqtt));
+  }
+}
+
+const ambientSensors = new ambientSensorsController("mqtt");
+
+for (const room in config.rooms) {
+  if (config.rooms[room]["ambient_sensors"]) {
+    config.rooms[room]["ambient_sensors"].forEach(s => ambientSensors.addSensor(room, s.name, s.mqtt));
   }
 }
 

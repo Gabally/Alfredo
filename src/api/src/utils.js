@@ -70,7 +70,7 @@ export const createDirIfNotExists = async (path) => {
 
 export const paramsAreValid = (params) => {
     for (let i = 0; i < params.length; i++) {
-        if (!(params[i] !== undefined && params[i] !== null && params.length > 0)) {
+        if (!(params[i] !== undefined && params[i] !== null && params[i].length > 0)) {
             return false;
         }        
     }

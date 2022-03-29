@@ -83,5 +83,33 @@ export default {
       console.error(e);
       res.status(500).json({ success: false, error: "An unknow internal error occurred" });
     }
+  },
+  async resetAccountPassword(req, res) {
+    try {
+      let { password } = req.body;
+      if (utils.paramsAreValid([req.params.id, password])) {
+        await db.resetAccountPassword(req.params.id, password);
+        res.status(200).json({ success: true });
+      } else {
+        res.status(400).json({ success: false, error: "Missing request parameters for password reset" });
+      }
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ success: false, error: "An unknow internal error occurred while resetting the password" });
+    }
+  },
+  async updateAccountPassword(req, res) {
+    try {
+      let { oldpassword, password } = req.body;
+      if (utils.paramsAreValid([oldpassword, password])) {
+        let result = await db.updateAccountPassword(req.headers["token"], oldpassword, password);
+        result ? res.status(200).json({ success: true }) : res.status(200).json({ success: false, error: "Wrong password" });
+      } else {
+        res.status(400).json({ success: false, error: "Missing request parameters for password reset" });
+      }
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({ success: false, error: "An unknow internal error occurred while resetting the password" });
+    }
   }
 };

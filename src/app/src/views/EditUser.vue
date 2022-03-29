@@ -21,6 +21,15 @@
           <span style="font-size: 20px">Is Admin:</span>
           <input type="checkbox" v-model="isAdmin" class="checkbox" />
         </div>
+        <div class="padded f-center" style="flex-direction: column;">
+          <div>Reset Password:</div>
+          <div class="f-center">
+            <input v-model="password" type="password" class="txt-field" />
+            <button @click="resetPassword()" type="button" class="btn">
+              <img src="@/assets/imgs/icons/reset.png" alt="">
+            </button>
+          </div>
+        </div>
         <div class="error" v-if="error">
           {{ error }}
         </div>
@@ -53,6 +62,7 @@ export default {
       mac: "",
       isAdmin: false,
       error: "",
+      password: ""
     };
   },
   async mounted() {
@@ -67,18 +77,32 @@ export default {
         this.error = "Invalid MAC Address";
         return;
       }
-      let resp = await this.postJSON(`/api/accounts/update/${this.$route.params.id}`, {
+      let { success, error } = await this.postJSON(`/api/accounts/update/${this.$route.params.id}`, {
         username: this.username,
         mac: this.mac,
         isAdmin: this.isAdmin,
       });
-      let { success, error } = resp;
       if (success) {
         this.$router.push({ name: "settings" });
       } else {
         this.error = error;
       }
     },
+    async resetPassword() {
+      if (!this.password) {
+        alert("Invalid password");
+        return;
+      }
+      let { success, error } = await this.postJSON(`/api/accounts/resetpassword/${this.$route.params.id}`, {
+        password: this.password,
+      });
+      this.password = "";
+      if (success) {
+        alert("Password reset successfull");
+      } else {
+        this.error = error;
+      }
+    }
   },
 };
 </script>

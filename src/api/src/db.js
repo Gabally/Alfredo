@@ -18,6 +18,7 @@ export class DB {
     await this.connection.query("CREATE TABLE IF NOT EXISTS tokens (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, token CHAR(200) NOT NULL, device CHAR(200) NOT NULL, is_mobile BOOLEAN NOT NULL, who INT NOT NULL, CONSTRAINT FK_user_token FOREIGN KEY (who) REFERENCES users(id) ON DELETE CASCADE)");
     await this.connection.query("CREATE TABLE IF NOT EXISTS notification_subscriptions (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, subscription VARCHAR(500) NOT NULL, who INT NOT NULL, CONSTRAINT FK_user_notification_subscriptions FOREIGN KEY (who) REFERENCES users(id) ON DELETE CASCADE)");
     await this.connection.query("CREATE TABLE IF NOT EXISTS doorbell (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, img CHAR(200) NOT NULL, timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)");
+    await this.connection.query("CREATE TABLE IF NOT EXISTS sensor_data (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, sensor CHAR(200) NOT NULL, room CHAR(200) NOT NULL, temperature FLOAT(10) NOT NULL, humidity INT(5) NOT NULL, timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)");
     let [rows, fields] = await this.connection.query("SELECT * FROM users LIMIT 1");
     if (rows.length === 0) {
       let password = await hashPassword("admin");
@@ -69,6 +70,21 @@ export class DB {
     }
   }
 
+  async getAccount(token) {
+    if (await this.tokenIsValid(token)) {
+      let [rows, fields] = await this.connection.query("SELECT * FROM tokens WHERE token=? LIMIT 1", [token]);
+      if (rows.length > 0) {
+        let who = rows[0]["who"];
+        [rows, fields] = await this.connection.query("SELECT * FROM users WHERE id=? LIMIT 1", [who]);
+        return rows.length > 0 ? rows[0] : null;
+      }  else {
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
   async getAccountInfoByID(id) {
     let [rows, fields] = await this.connection.query("SELECT id, username, is_admin, phone_mac FROM users WHERE id=? LIMIT 1", [id]);
     return rows.length > 0 ? rows[0] : null;
@@ -103,6 +119,21 @@ export class DB {
     return rows.affectedRows > 0;
   }
 
+  async resetAccountPassword(id, password) {
+    let passwordHash = await hashPassword(password);
+    let [rows, fields] = await this.connection.query("UPDATE users SET password=? WHERE id=?",[passwordHash, id]);
+    return rows.affectedRows > 0;
+  }
+
+  async updateAccountPassword(token, oldpassword, password) {
+    let user = await this.getAccount(token);
+    if (await compareHash(user.password, oldpassword)) {
+      return await this.resetAccountPassword(user.id, password);
+    } else {
+      return false;
+    }
+  }
+
   async addNotificationSubscription(who, sub) {
     let [rows, fields] = await this.connection.query("INSERT INTO notification_subscriptions VALUES(NULL, ?, ?)",[sub, who]);
     return rows.affectedRows > 0;
@@ -121,5 +152,15 @@ export class DB {
   async getDoorbellEvents() {
     let [rows, fields] = await this.connection.query("SELECT * FROM doorbell");
     return rows;
+  }
+
+  async addSensorDataLog(sensor, room, temperature, humidity) {
+    let [rows, fields] = await this.connection.query("INSERT INTO sensor_data (sensor, room, temperature, humidity) VALUES(?, ?, ?, ?)",[sensor, room, temperature, humidity]);
+    return rows.affectedRows > 0;
+  }
+
+  async getSenorData(room, sensor) {
+    let [rows, fields] = await this.connection.query("SELECT temperature, humidity, timestamp FROM sensor_data WHERE sensor = ? AND room = ?",[sensor, room]);
+    return rows.length > 0 ? rows : [];
   }
 }

@@ -15,6 +15,7 @@
       <button-card @trigger="sendTrigger(btn.name, 'buttons')" v-for="btn in config[selectedRoom].buttons" :key="btn" :name="btn.name" />
       <button-card @trigger="sendTrigger(wol.name, 'wol')" v-for="wol in config[selectedRoom].wol" :key="wol" :name="wol.name" />
       <video-card :still="`/api/cameras/still/${selectedRoom}/${camera.name}?token=${getToken()}`" :src="`/api/cameras/feed/${selectedRoom}/${camera.name}?token=${getToken()}`" v-for="camera in config[selectedRoom].cameras" :key="camera" :name="camera.name" />
+      <ambient-sensor-chart  v-for="sensor in config[selectedRoom]['ambient_sensors']" :key="sensor" :name="sensor.name" :room="selectedRoom" />
     </main>
   </div>
 </template>
@@ -25,6 +26,7 @@ import ButtonCard from "../components/ButtonCard.vue";
 import VideoCard from "../components/VideoCard.vue";
 import BannerTop from "../components/BannerTop.vue";
 import DoorbellEvent from "../components/DoorbellEvent.vue";
+import AmbientSensorChart from "../components/AmbientSensorChart.vue";
 
 import { io } from "socket.io-client";
 
@@ -36,7 +38,8 @@ export default {
     ButtonCard,
     VideoCard,
     BannerTop,
-    DoorbellEvent
+    DoorbellEvent,
+    AmbientSensorChart
   },
   data() {
     return {

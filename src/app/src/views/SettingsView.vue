@@ -5,6 +5,7 @@
       <div @click="gotoConfig()" v-bind:class="{'tab-active':(selectedTab === 'config')}">Devices Configuration</div>
       <div @click="gotoAccounts()" v-bind:class="{'tab-active':(selectedTab === 'accounts')}">Account Management</div>
       <div @click="gotoMyAccount()" v-bind:class="{'tab-active':(selectedTab === 'myaccount')}">My Account Info</div>
+      <div @click="selectedTab = 'resetpw'" v-bind:class="{'tab-active':(selectedTab === 'resetpw')}">Reset Password</div>
     </div>
     <main>
         <div v-if="selectedTab === 'config'" class="f-center conf-tab" style="flex-direction: column;">
@@ -33,6 +34,31 @@
             <div>Username: {{ username }}</div>
             <div>Role: {{ isAdmin ? "Admin User" : "Normal user" }}</div>
             <div>Phone MAC Address: {{ mymac ? mymac : "None" }}</div>
+          </div>
+        </div>
+        <div v-if="selectedTab === 'resetpw'" class="f-center conf-tab" style="flex-direction: column;">
+          <div class="f-center">
+            <form @submit.prevent="updatePassword()" class="form resetpw">
+              <h2 class="padded">Reset Password:</h2>
+              <input
+                v-model="oldpassword"
+                required
+                placeholder="Old Password"
+                class="txt-field"
+                type="text"
+              />
+              <input
+                v-model="newpassword"
+                required
+                placeholder="New Password"
+                class="txt-field"
+                type="text"
+              />
+              <div v-if="pwupdaterror" class="error">
+                {{ pwupdaterror }}
+              </div>
+              <button class="btn b-ok">Reset</button>
+            </form>
           </div>
         </div>
     </main>
@@ -64,7 +90,10 @@ export default {
         accountid: null,
         accounts: [],
         isAdmin: false,
-        mymac: ""
+        mymac: "",
+        oldpassword: "",
+        newpassword: "",
+        pwupdaterror: ""
     }
   },
   async mounted() {
@@ -117,6 +146,18 @@ export default {
         }
       });
       fileReader.readAsDataURL(files[0]);
+    },
+    async updatePassword() {
+      let { success, error } = await this.postJSON("/api/accounts/updatepassword", {
+        oldpassword: this.oldpassword,
+        password: this.newpassword
+      });
+      if (success) {
+        alert("Password reset successfully");
+      } else {
+        this.pwupdaterror = error;
+        setTimeout(() => { this.pwupdaterror = ""; }, 5000);
+      }
     }
   }
 };
@@ -149,6 +190,10 @@ export default {
   border-radius: 10px;
   padding: 10px;
   color: rgb(66, 55, 55);
+}
+
+.resetpw {
+  width: 100% !important;
 }
 
 .json-editor {

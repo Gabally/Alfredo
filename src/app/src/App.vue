@@ -87,7 +87,7 @@ body {
   border: 0px;
   outline: none;
   margin: 5px;
-  font-size: 15px;
+  font-size: 15px !important;
   border: 1px solid rgba(92, 92, 92, 0.61);
   border-radius: 5px;
   padding: 5px;

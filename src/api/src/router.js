@@ -7,6 +7,8 @@ import authenticationcheck from "./middleware/authenticationcheck.js";
 import notifications from "./controllers/notifications.js";
 import doorbell from "./controllers/doorbell.js";
 import ambientSensors from "./controllers/ambientSensors.js";
+import presenceDetection from "./controllers/presenceDetection.js";
+import network from "./controllers/network.js";
 
 const router = express.Router();
 
@@ -18,6 +20,11 @@ router.post("/logout", authenticationcheck.headerAuth, authentication.logout);
 router.get("/ringdoorbell", doorbell.ring);
 
 router.get("/doorbellevents", authenticationcheck.headerAuth,  doorbell.getDoorbellEvents);
+
+router.get("/presence/:room", authenticationcheck.headerAuth,  presenceDetection.whoIsPresent);
+
+router.get("/netstat", authenticationcheck.headerAuth,  network.netStatus);
+router.get("/rebootrouter", authenticationcheck.headerAuth,  network.rebootRouter);
 
 const usersRouter = express.Router();
 

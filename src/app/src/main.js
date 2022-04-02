@@ -18,6 +18,24 @@ app.provide("isAdmin", () => {
     return window.localStorage.getItem('isAdmin') === "true";
 });
 
+window.xd =  async (url) => {
+    let token = window.localStorage.getItem("token");
+    if (token) {
+        let response = await fetch(url, {
+            headers: {
+                "Token": token
+            }
+        });
+        if (response.status === 200) {
+            return await response.json();
+        } else if (response.status === 401) {
+            window.localStorage.removeItem("token");
+            router.push({ name: "login" });
+        }
+    } else {
+        router.push({ name: "login" });
+    }
+}
 
 app.provide("getJSON", async (url) => {
     let token = window.localStorage.getItem("token");

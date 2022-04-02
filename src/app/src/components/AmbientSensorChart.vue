@@ -1,5 +1,6 @@
 <template>
-  <div class="card">
+  <div class="card f-center">
+    <h4 class="padded">Sensore Ambiente</h4>
     <canvas style="border-top-right-radius: 5px;border-top-left-radius: 5px;" ref="temp"></canvas>
     <canvas style="border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;" ref="humidity"></canvas>
   </div>
@@ -79,8 +80,8 @@ export default {
   width: 300px;
   height: 300px;
   margin: 5px;
-  padding: 40px;
-  padding-bottom: 25px;
+  padding: 45px;
+  padding-bottom: 30px;
   font-size: 25px;
   border-radius: 3px;
   background: url("@/assets/imgs/video-bg.png");

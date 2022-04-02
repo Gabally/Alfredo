@@ -15,6 +15,8 @@
       <button-card @trigger="sendTrigger(btn.name, 'buttons')" v-for="btn in config[selectedRoom].buttons" :key="btn" :name="btn.name" />
       <button-card @trigger="sendTrigger(wol.name, 'wol')" v-for="wol in config[selectedRoom].wol" :key="wol" :name="wol.name" />
       <video-card :still="`/api/cameras/still/${selectedRoom}/${camera.name}?token=${getToken()}`" :src="`/api/cameras/feed/${selectedRoom}/${camera.name}?token=${getToken()}`" v-for="camera in config[selectedRoom].cameras" :key="camera" :name="camera.name" />
+      <presence-detection v-if="config[selectedRoom]['presence_detection']" :room="selectedRoom" />
+      <net-stat v-if="config[selectedRoom]['netstat']" />
       <ambient-sensor-chart  v-for="sensor in config[selectedRoom]['ambient_sensors']" :key="sensor" :name="sensor.name" :room="selectedRoom" />
     </main>
   </div>
@@ -27,6 +29,8 @@ import VideoCard from "../components/VideoCard.vue";
 import BannerTop from "../components/BannerTop.vue";
 import DoorbellEvent from "../components/DoorbellEvent.vue";
 import AmbientSensorChart from "../components/AmbientSensorChart.vue";
+import PresenceDetection from "../components/PresenceDetection.vue";
+import NetStat from "../components/NetStat.vue";
 
 import { io } from "socket.io-client";
 
@@ -39,7 +43,9 @@ export default {
     VideoCard,
     BannerTop,
     DoorbellEvent,
-    AmbientSensorChart
+    AmbientSensorChart,
+    PresenceDetection,
+    NetStat
   },
   data() {
     return {

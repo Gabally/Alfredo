@@ -1,2 +1,2 @@
 #!/bin/bash
-docker compose -f dev/docker-compose.yml down
+docker-compose --file dev/docker-compose.yml down

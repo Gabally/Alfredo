@@ -10,16 +10,60 @@ export default {
 }
 </script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap');
+
+#app {
+  height: 100vh;
+}
+
+@font-face {
+    font-family: 'bitpapmedium';
+    src: url('./assets/fonts/bitpap-webfont.woff2') format('woff2'),
+         url('./assets/fonts/bitpap-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
 
 * {
   margin: 0px;
   padding: 0px;
-  font-family: 'Nunito', sans-serif, Arial, Helvetica;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
+  color: #242d36;
   -webkit-tap-highlight-color: transparent;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+body {
+  font-family: bitpapmedium, Arial, Helvetica, sans-serif;
+  background: url("./assets/imgs/bg.jpg");
+  background-size: 192px;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  margin: 0px;
+  padding: 0px;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+
+.btn {
+  font-family: bitpapmedium, Arial, Helvetica, sans-serif;
+}
+
+.padded {
+  margin: 10px;
+}
+
+.crisp-image {
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 
 .form {
@@ -43,10 +87,11 @@ export default {
   border: 0px;
   outline: none;
   margin: 5px;
-  font-size: 15px;
+  font-size: 15px !important;
   border: 1px solid rgba(92, 92, 92, 0.61);
   border-radius: 5px;
   padding: 5px;
+  width: 80%;
 }
 
 .txt-field:focus {
@@ -84,5 +129,19 @@ export default {
 
 .card {
   float: left;
+}
+
+.error {
+  margin: 5px;
+  color: red;
+  font-weight: bold;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  margin: 10px;
+  cursor: pointer;
+  border-radius: 5px;   
 }
 </style>

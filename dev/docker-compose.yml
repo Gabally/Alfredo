@@ -1,5 +1,18 @@
 version: "3.3"
 services:
+  db:
+      image: mysql:8
+      container_name: ${APP_CODENAME}-mysqldb
+      environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: alfredo
+      ports:
+        - 33090:3306
+      volumes:
+        - ../data/mysql/my.cnf:/etc/my.cnf
+        - ../data/mysql/data:/var/lib/mysql
+        - ../data/mysql/mysql.log:/var/log/mysql/mysql.log
+        - ../dockerfiles/sql:/docker-entrypoint-initdb.d
   web:
     image: nginx
     container_name: ${APP_CODENAME}-reverse-proxy
@@ -7,6 +20,7 @@ services:
       - 8080:80
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ../data/static/:/static:ro
   app:
     container_name: ${APP_CODENAME}-frontend
     build:
@@ -22,10 +36,12 @@ services:
       volumes:
         - ../src/api:/workapi
         - ../data/config.json:/workapi/config.json
+        - ../data/static/:/workapi/static:rw
+        - ../data/keys/:/workapi/keys
   mqtt:
     container_name: ${APP_CODENAME}-mqtt-broker
-    image: "eclipse-mosquitto:2.0.14"
+    image: eclipse-mosquitto:2.0.14
     volumes:
-      - ../mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ../Dockerfiles/mosquitto.conf:/mosquitto/config/mosquitto.conf
     ports:
       - 1883:1883

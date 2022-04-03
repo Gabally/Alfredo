@@ -11,9 +11,18 @@
   "author": "Gabriele Morisano",
   "license": "MIT",
   "dependencies": {
+    "bcrypt": "^5.0.1",
+    "data-uri-to-buffer": "^4.0.0",
     "express": "^4.17.3",
+    "express-useragent": "^1.0.15",
+    "jimp": "^0.16.1",
     "mqtt": "^4.3.6",
-    "socket.io": "^4.4.1"
+    "mysql2": "^2.3.3",
+    "node-fetch": "^3.2.1",
+    "rtsp-relay": "^1.6.1",
+    "socket.io": "^4.4.1",
+    "web-push": "^3.4.5",
+    "wol": "^1.0.7"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

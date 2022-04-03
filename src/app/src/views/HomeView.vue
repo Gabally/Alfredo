@@ -8,6 +8,9 @@
       </div>
     </div>
     <main class="doorbell-events" v-if="selectedRoom == 'doorbell'">
+      <h2 v-if="rings.length == 0" class="no-rings">
+        Non ci sono eventi per il campanello.
+      </h2>
       <doorbell-event v-for="ring in rings" :key="ring" :img="ring.img" :when="ring.timestamp" />
     </main>
     <main v-else-if="selectedRoom">
@@ -138,6 +141,12 @@ export default {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+}
+.no-rings {
+  border: 5px solid rgb(121, 117, 117);
+  background: rgba(179, 178, 178, 0.774);
+  border-radius: 4px;
+  padding: 5px;
 }
 </style>
 

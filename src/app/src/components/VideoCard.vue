@@ -41,7 +41,8 @@ export default {
 <style scoped>
 .title {
     text-overflow: ellipsis;
-    max-width: 120px;
+    overflow: hidden;
+    width: 100%;
     margin: 10px;
 }
 .card {

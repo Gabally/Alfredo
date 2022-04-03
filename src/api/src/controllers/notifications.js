@@ -1,8 +1,6 @@
 import { db } from "../app.js";
 import * as utils from "../utils.js";
 
-let keys = utils.getVAPIDKeys();
-
 export default {
   async addNotificationSubscription(req, res) {
     try {
@@ -20,6 +18,7 @@ export default {
     }
   },
   getPublicKey(req, res) {
+      let keys = utils.getVAPIDKeys();
       res.json({
           publicKey: keys.publicKey
       });

@@ -27,7 +27,7 @@ services:
     restart: always
   api:
     container_name: ${APP_CODENAME}-api
-    build: ./src/api
+    build: ./src/app
     restart: always
     volumes:
         - ${DATA_FOLDER}/config.json:/api/config.json

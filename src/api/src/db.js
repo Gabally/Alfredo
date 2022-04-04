@@ -163,4 +163,9 @@ export class DB {
     let [rows, fields] = await this.connection.query("SELECT temperature, humidity, timestamp FROM sensor_data WHERE sensor = ? AND room = ?",[sensor, room]);
     return rows.length > 0 ? rows : [];
   }
+
+  async getPresenceDetectionList() {
+    let [rows, fields] = await this.connection.query("SELECT username, phone_mac FROM users WHERE phone_mac IS NOT NULL AND LENGTH(phone_mac) != 0");
+    return rows;
+  }
 }

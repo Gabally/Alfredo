@@ -1,18 +1,18 @@
-import { config } from "../app.js";
+import { config, db } from "../app.js";
 import { paramsAreValid } from "../utils.js";
 import { Router } from "../devices/tplinkRouter.js";
 
 export default {
   async whoIsPresent(req, res) {
-    if (paramsAreValid([req.params.room]) && config.rooms[req.params.room] && config.rooms[req.params.room]["presence_detection"] && config.router_ip && config.router_password) {
-        let people = config.rooms[req.params.room]["presence_detection"];
+    if (paramsAreValid([config.router_ip, config.router_password])) {
+        let people = await db.getPresenceDetectionList();
         let presence = [];
         let router = new Router(config.router_ip, config.router_password);
         let devices = await router.getDevices();
         people.forEach(p => {
             presence.push({
-                name: p.name,
-                present: devices.find(d => d.MACAddress === p.mac) !== undefined
+                name: p.username,
+                present: devices.find(d => d.MACAddress === p.phone_mac) !== undefined
             });
         });
         res.status(200).json({

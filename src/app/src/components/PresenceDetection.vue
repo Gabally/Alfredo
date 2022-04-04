@@ -12,6 +12,9 @@
         <img src="@/assets/imgs/icons/door-out.png" alt="">
       </div>
     </div>
+    <div v-if="error">
+      {{ error }}
+    </div>
   </div>
 </template>
 
@@ -19,18 +22,18 @@
 export default {
   inject: ["getJSON"],
   name: "PresenceDetection",
-  props: {
-    room: String,
-  },
   data() {
     return {
       people: [],
+      error: ""
     };
   },
   async mounted() {
-      let { success, people } = await this.getJSON(`/api/presence/${this.room}`);
+      let { success, people, error } = await this.getJSON("/api/presence");
       if (success) {
           this.people = people;
+      } else {
+        this.error = error;
       }
   },
 };

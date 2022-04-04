@@ -21,7 +21,7 @@ router.get("/ringdoorbell", doorbell.ring);
 
 router.get("/doorbellevents", authenticationcheck.headerAuth,  doorbell.getDoorbellEvents);
 
-router.get("/presence/:room", authenticationcheck.headerAuth,  presenceDetection.whoIsPresent);
+router.get("/presence", authenticationcheck.headerAuth,  presenceDetection.whoIsPresent);
 
 router.get("/netstat", authenticationcheck.headerAuth,  network.netStatus);
 router.get("/rebootrouter", authenticationcheck.headerAuth,  network.rebootRouter);

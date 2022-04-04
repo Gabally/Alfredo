@@ -150,7 +150,7 @@ export class DB {
   }
 
   async getDoorbellEvents() {
-    let [rows, fields] = await this.connection.query("SELECT * FROM doorbell");
+    let [rows, fields] = await this.connection.query("SELECT * FROM doorbell ORDER BY `timestamp` DESC");
     return rows;
   }
 

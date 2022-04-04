@@ -15,10 +15,7 @@ export default {
             body: "Qualcuno ha suonato il campanello",
             icon: `${config.external_url}/logo.png`,
             image: `${config.external_url}/static/doorbell/${filename}`,
-            actions: [{
-                action: `${config.external_url}/static/doorbell/${filename}`,
-                title: "Apri"
-            }]
+            imgfile: `${config.external_url}/static/doorbell/${filename}`
         });
         await db.newDoorbellEvent(filename);
         let subs = await db.getNotificationSubscriptions();

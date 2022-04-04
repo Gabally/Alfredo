@@ -5,6 +5,8 @@ self.addEventListener("push", ev => {
       icon: data.icon,
       image: data.image,
       vibrate: [300, 100, 400],
-      actions: data.actions
+      data: {
+        url: data.imgfile
+      }
     });
-  });
+});

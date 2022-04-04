@@ -1,4 +1,4 @@
-import { config } from "../app.js";
+import { config, reload } from "../app.js";
 import * as utils from "../utils.js";
 
 export default {
@@ -10,7 +10,7 @@ export default {
     try {
       JSON.parse(config);
       utils.saveConfig(config);
-      config = utils.loadConfig();
+      reload();
       res.json({
         success: true,
       });

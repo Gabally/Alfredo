@@ -12,6 +12,10 @@ import router from "./router.js";
 
 export let config = utils.loadConfig();
 
+export const reload = () => {
+  config = utils.loadConfig();
+};
+
 utils.generateVAPIDKeys();
 
 const getDevice = (room ,type, device) => {

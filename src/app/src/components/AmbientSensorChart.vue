@@ -81,7 +81,6 @@ export default {
   height: 300px;
   margin: 5px;
   padding: 45px;
-  padding-bottom: 30px;
   font-size: 25px;
   border-radius: 3px;
   background: url("@/assets/imgs/video-bg.png");
@@ -89,5 +88,12 @@ export default {
 }
 canvas {
   background: rgb(243, 241, 241);
+}
+@media only screen and (max-width: 500px) {
+  .card {
+    width: 80%;
+    background-size: contain;
+    background-repeat: no-repeat;
+  }
 }
 </style>

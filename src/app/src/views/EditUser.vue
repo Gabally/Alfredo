@@ -111,7 +111,7 @@ export default {
 .form {
   padding: 10px;
   margin-top: 40px;
-  width: 30%;
+  width: 40%;
   background: grey;
 }
 .b-cancel {
@@ -122,5 +122,10 @@ export default {
 }
 .b-cancel:active {
   background: rgb(151, 49, 49);
+}
+@media only screen and (max-width: 500px) {
+  .form {
+    width: 80%;
+  }
 }
 </style>

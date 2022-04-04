@@ -105,4 +105,10 @@ export default {
 .b-cancel:active {
   background: rgb(151, 49, 49);
 }
+
+@media only screen and (max-width: 500px) {
+  .form {
+    width: 80%;
+  }
+}
 </style>

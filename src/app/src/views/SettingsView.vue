@@ -167,6 +167,7 @@ export default {
 .form * {
   margin: 10px;
   font-size: 22px;
+  text-align: center;
 }
 .conf-tab {
     margin-top: 30px;
@@ -234,7 +235,8 @@ export default {
     font-size: 14px;
   }
   .form {
-    width: 80%;
+    width: 90%;
+    padding: 10px;
   }
 }
 </style>

@@ -144,4 +144,10 @@ body {
   cursor: pointer;
   border-radius: 5px;   
 }
+
+@media only screen and (max-width: 500px) {
+  .form {
+    width: 70%;
+  }
+}
 </style>

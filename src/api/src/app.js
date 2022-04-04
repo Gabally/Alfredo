@@ -9,6 +9,7 @@ import * as wol from "wol";
 import { SonoffController } from "./devices/SonoffController.js";
 import { ambientSensorsController } from "./devices/ambientSensors.js";
 import router from "./router.js";
+import authenticationcheck from "./middleware/authenticationcheck.js";
 
 export let config = utils.loadConfig();
 
@@ -108,7 +109,7 @@ io.use(async (socket, next) => {
   });
 });
 
-app.get("/devices", async (req, res) => {
+app.get("/devices", authenticationcheck.headerAuth, async (req, res) => {
   let { rooms } = config;
   for (const room in rooms) {
     if (rooms[room]["sonoffs"]) {

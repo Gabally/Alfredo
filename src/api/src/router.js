@@ -32,16 +32,16 @@ router.use("/accounts", usersRouter);
 
 usersRouter.use(authenticationcheck.headerAuth);
 
-usersRouter.get("/info/:id", users.getAccountInfo);
-usersRouter.get("/all", users.listAccounts);
+usersRouter.get("/info/:id", authenticationcheck.headerAuthAdmin, users.getAccountInfo);
+usersRouter.get("/all", authenticationcheck.headerAuthAdmin, users.listAccounts);
 usersRouter.get("/my", users.getMyAccountInfo);
 usersRouter.post("/updatepassword", users.updateAccountPassword);
 usersRouter.post("/updatepfp", users.updateProfilePicture);
-usersRouter.delete("/deletelogin/:id", users.deleteLoginToken);
-usersRouter.delete("/delete/:id", users.deleteAccount);
-usersRouter.post("/create", users.createAccount);
-usersRouter.post("/update/:id", users.updateAccount);
-usersRouter.post("/resetpassword/:id", users.resetAccountPassword);
+usersRouter.delete("/deletelogin/:id", authenticationcheck.headerAuthAdmin, users.deleteLoginToken);
+usersRouter.delete("/delete/:id", authenticationcheck.headerAuthAdmin, users.deleteAccount);
+usersRouter.post("/create", authenticationcheck.headerAuthAdmin, users.createAccount);
+usersRouter.post("/update/:id", authenticationcheck.headerAuthAdmin, users.updateAccount);
+usersRouter.post("/resetpassword/:id", authenticationcheck.headerAuthAdmin, users.resetAccountPassword);
 
 const streamRouter = express.Router();
 
@@ -65,7 +65,7 @@ const configRouter = express.Router();
 
 router.use("/config", configRouter);
 
-configRouter.use(authenticationcheck.headerAuth);
+configRouter.use(authenticationcheck.headerAuthAdmin);
 
 configRouter.get("/raw", config.getRawConfig);
 configRouter.post("/save", config.saveConfig);

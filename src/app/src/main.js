@@ -18,23 +18,9 @@ app.provide("isAdmin", () => {
     return window.localStorage.getItem('isAdmin') === "true";
 });
 
-window.xd =  async (url) => {
-    let token = window.localStorage.getItem("token");
-    if (token) {
-        let response = await fetch(url, {
-            headers: {
-                "Token": token
-            }
-        });
-        if (response.status === 200) {
-            return await response.json();
-        } else if (response.status === 401) {
-            window.localStorage.removeItem("token");
-            router.push({ name: "login" });
-        }
-    } else {
-        router.push({ name: "login" });
-    }
+const clearCredentials = () => {
+    window.localStorage.removeItem("token");
+    window.localStorage.removeItem("isAdmin");
 }
 
 app.provide("getJSON", async (url) => {
@@ -48,7 +34,7 @@ app.provide("getJSON", async (url) => {
         if (response.status === 200) {
             return await response.json();
         } else if (response.status === 401) {
-            window.localStorage.removeItem("token");
+            clearCredentials();
             router.push({ name: "login" });
         }
     } else {
@@ -68,13 +54,13 @@ app.provide("postJSON", async (url, body) => {
             body: JSON.stringify(body)
         });
         if (response.status === 401) {
-            window.localStorage.removeItem("token");
-            this.$router.push({ name: "login" });
+            clearCredentials();
+            router.push({ name: "login" });
         } else {
             return await response.json();
         }
     } else {
-        this.$router.push({ name: "login" });
+        router.push({ name: "login" });
     }
 });
 
@@ -88,13 +74,13 @@ app.provide("deleteReq", async (url) => {
             }
         });
         if (response.status === 401) {
-            window.localStorage.removeItem("token");
-            this.$router.push({ name: "login" });
+            clearCredentials();
+            router.push({ name: "login" });
         } else {
             return await response.json();
         }
     } else {
-        this.$router.push({ name: "login" });
+        router.push({ name: "login" });
     }
 });
 

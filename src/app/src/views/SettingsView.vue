@@ -2,8 +2,8 @@
   <div>
     <banner-top />
     <div class="nav">
-      <div @click="gotoConfig()" v-bind:class="{'tab-active':(selectedTab === 'config')}">Devices Configuration</div>
-      <div @click="gotoAccounts()" v-bind:class="{'tab-active':(selectedTab === 'accounts')}">Account Management</div>
+      <div @click="gotoConfig()" v-if="isAdmin" v-bind:class="{'tab-active':(selectedTab === 'config')}">Devices Configuration</div>
+      <div @click="gotoAccounts()" v-if="isAdmin" v-bind:class="{'tab-active':(selectedTab === 'accounts')}">Account Management</div>
       <div @click="gotoMyAccount()" v-bind:class="{'tab-active':(selectedTab === 'myaccount')}">My Account Info</div>
       <div @click="selectedTab = 'resetpw'" v-bind:class="{'tab-active':(selectedTab === 'resetpw')}">Reset Password</div>
     </div>
@@ -45,14 +45,14 @@
                 required
                 placeholder="Old Password"
                 class="txt-field"
-                type="text"
+                type="password"
               />
               <input
                 v-model="newpassword"
                 required
                 placeholder="New Password"
                 class="txt-field"
-                type="text"
+                type="password"
               />
               <div v-if="pwupdaterror" class="error">
                 {{ pwupdaterror }}
@@ -97,7 +97,7 @@ export default {
     }
   },
   async mounted() {
-    this.gotoAccounts();
+    this.gotoMyAccount();
   },
   methods: {
     async gotoConfig() {

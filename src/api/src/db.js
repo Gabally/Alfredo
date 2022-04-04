@@ -160,7 +160,7 @@ export class DB {
   }
 
   async getSenorData(room, sensor) {
-    let [rows, fields] = await this.connection.query("SELECT temperature, humidity, timestamp FROM sensor_data WHERE sensor = ? AND room = ?",[sensor, room]);
+    let [rows, fields] = await this.connection.query("SELECT temperature, humidity, timestamp FROM sensor_data WHERE DATE(`timestamp`) = CURDATE() AND sensor = ? AND room = ?",[sensor, room]);
     return rows.length > 0 ? rows : [];
   }
 

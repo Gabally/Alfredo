@@ -10,7 +10,6 @@ export default {
   },
   async headerAuthAdmin(req, res, next) {
     let user = await db.getAccountInfo(req.headers["token"]);
-    console.log(user);
     if (user && user.is_admin) {
       next();
     } else {

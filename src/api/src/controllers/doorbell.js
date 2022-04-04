@@ -13,7 +13,7 @@ export default {
         writeFileSync(`static/doorbell/${filename}`, img);
         const payload = JSON.stringify({ title: "Campanello",
             body: "Qualcuno ha suonato il campanello",
-            icon: `${config.external_url}/logo.png`,
+            icon: `${config.external_url}/icon.png`,
             image: `${config.external_url}/static/doorbell/${filename}`,
             imgfile: `${config.external_url}/static/doorbell/${filename}`
         });

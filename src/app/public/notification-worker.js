@@ -4,9 +4,13 @@ self.addEventListener("push", ev => {
       body: data.body,
       icon: data.icon,
       image: data.image,
-      vibrate: [300, 100, 400],
-      data: {
-        url: data.imgfile
-      }
+      vibrate: [300, 100, 400]
     });
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.openWindow(event.notification.data.imgfile)
+  );
 });

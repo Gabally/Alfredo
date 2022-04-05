@@ -14,8 +14,7 @@ export default {
         const payload = JSON.stringify({ title: "Campanello",
             body: "Qualcuno ha suonato il campanello",
             icon: `${config.external_url}/icon.png`,
-            image: `${config.external_url}/static/doorbell/${filename}`,
-            imgfile: `${config.external_url}/static/doorbell/${filename}`
+            image: `${config.external_url}/static/doorbell/${filename}`
         });
         await db.newDoorbellEvent(filename);
         let subs = await db.getNotificationSubscriptions();

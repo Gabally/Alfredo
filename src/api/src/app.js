@@ -26,7 +26,7 @@ const getDevice = (room ,type, device) => {
 
 const app = express();
 
-app.use(express.json({ limit: "5mb" }));
+app.use(express.json({ limit: "20mb" }));
 
 app.use(useragent.express());
 

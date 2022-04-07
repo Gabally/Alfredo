@@ -5,6 +5,7 @@ module.exports = defineConfig({
     host: "app"
   },
   pwa: {
-    name: "Alfredo Companion"
+    name: "Alfredo Companion",
+    themeColor: "#424242"
   }
 })

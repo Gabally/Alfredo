@@ -59,7 +59,13 @@ export default {
     }
   },
   async mounted() {
-    this.config = await this.getJSON("/api/devices");
+    this.getJSON("/api/devices")
+    .then(data => {
+      this.config = data;
+      this.setCacheConfig(data);
+      this.selectedRoom = Object.keys(this.config)[0];
+    });
+    this.config = this.getCacheConfig();
     this.selectedRoom = Object.keys(this.config)[0];
     this.socket = io({ path: "/api/socket.io", query: { token: this.getToken() } });
     this.socket.on("on", (room, name) => {
@@ -86,6 +92,12 @@ export default {
       } else {
         alert(error);
       }
+    },
+    getCacheConfig() {
+      return JSON.parse(window.localStorage.getItem("cacheconfig") || "{}");
+    },
+    setCacheConfig(conf) {
+      window.localStorage.setItem("cacheconfig", JSON.stringify(conf));
     }
   }
 };

@@ -6,9 +6,7 @@ export default {
     try {
       let { subscription } = req.body;
       if (utils.paramsAreValid([subscription])) {
-        let { id } = await db.getAccountInfo(req.headers["token"]);
-        await db.addNotificationSubscription(id, subscription);
-        res.status(200).json({ success: true });
+        res.status(200).json({ success: await db.addNotificationSubscription(req.headers["token"], subscription) });
       } else {
         res.status(400).json({ success: false, error: "Missing request parameters" });
       }

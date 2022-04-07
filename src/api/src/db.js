@@ -16,7 +16,7 @@ export class DB {
     });
     await this.connection.query("CREATE TABLE IF NOT EXISTS users (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, username CHAR(200) NOT NULL, password TEXT(1000) NOT NULL, is_admin BOOLEAN NOT NULL, phone_mac CHAR(100))");
     await this.connection.query("CREATE TABLE IF NOT EXISTS tokens (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, token CHAR(200) NOT NULL, device CHAR(200) NOT NULL, is_mobile BOOLEAN NOT NULL, who INT NOT NULL, CONSTRAINT FK_user_token FOREIGN KEY (who) REFERENCES users(id) ON DELETE CASCADE)");
-    await this.connection.query("CREATE TABLE IF NOT EXISTS notification_subscriptions (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, subscription VARCHAR(500) NOT NULL, who INT NOT NULL, CONSTRAINT FK_user_notification_subscriptions FOREIGN KEY (who) REFERENCES users(id) ON DELETE CASCADE)");
+    await this.connection.query("CREATE TABLE IF NOT EXISTS notification_subscriptions (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, subscription VARCHAR(500) NOT NULL, from_token INT NOT NULL, CONSTRAINT FK_user_token_notification_subscriptions FOREIGN KEY (from_token) REFERENCES tokens(id) ON DELETE CASCADE)");
     await this.connection.query("CREATE TABLE IF NOT EXISTS doorbell (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, img CHAR(200) NOT NULL, timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)");
     await this.connection.query("CREATE TABLE IF NOT EXISTS sensor_data (id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, sensor CHAR(200) NOT NULL, room CHAR(200) NOT NULL, temperature FLOAT(10) NOT NULL, humidity INT(5) NOT NULL, timestamp DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP)");
     let [rows, fields] = await this.connection.query("SELECT * FROM users LIMIT 1");
@@ -134,9 +134,16 @@ export class DB {
     }
   }
 
-  async addNotificationSubscription(who, sub) {
-    let [rows, fields] = await this.connection.query("INSERT INTO notification_subscriptions VALUES(NULL, ?, ?)",[sub, who]);
-    return rows.affectedRows > 0;
+  async addNotificationSubscription(token, sub) {
+    let [tRows, fields] = await this.connection.query("SELECT id FROM tokens WHERE token=? LIMIT 1", [token]);
+    if (tRows.length > 0) {
+      let tokenID = tRows[0]["id"];
+      await this.connection.query("DELETE FROM notification_subscriptions WHERE from_token=?", [tokenID]);
+      let [rows, fields] = await this.connection.query("INSERT INTO notification_subscriptions VALUES(NULL, ?, ?)",[sub, tokenID]);
+      return rows.affectedRows > 0;
+    } else {
+      return false;
+    }
   }
 
   async getNotificationSubscriptions() {

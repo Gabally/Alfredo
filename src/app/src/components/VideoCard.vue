@@ -4,10 +4,6 @@
         {{ name }}
     </div>
     <img @click="viewFullScreen" class="video" :src="still" alt="">
-    <div v-if="showFullscreen" class="fullscreen a-center">
-      <div class="obscurator a-center" @click="closeFullScreen"></div>
-      <img class="feed" :src="src" alt="">
-    </div>
   </div>
 </template>
 
@@ -19,20 +15,9 @@ export default {
     still: String,
     src: String
   },
-  data() {
-    return {
-      showFullscreen: false
-    }
-  },
   methods: {
     viewFullScreen() {
-      this.showFullscreen = true;
-      document.body.style.overflow = "hidden";
-      
-    },
-    closeFullScreen() {
-      this.showFullscreen = false;
-      document.body.style.overflow = "visible";
+      window.location.href = this.src;
     }
   }
 }
@@ -64,45 +49,5 @@ export default {
     height: 100%;
     object-fit: cover;
     cursor: pointer;
-}
-
-.a-center {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.fullscreen {
-  z-index: 999999999;
-  width: 100vw;
-  height: auto;
-  text-align: center;
-  user-select: none;
-}
-
-.obscurator {
-  z-index: 9999;
-  background: rgba(161, 161, 161, 0.26);
-  width: 100vw;
-  height: 100vh;
-}
-
-.feed {
-  width: 80%;
-  object-fit: contain;
-  border: 2mm ridge rgba(73, 73, 73, 0.76);
-  border-radius: 3px;
-  position: relative;
-  z-index: 999999999;
-}
-
-.close-feed {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  font-size: 16px;
-  cursor: pointer;
-  z-index: 999999;
 }
 </style>

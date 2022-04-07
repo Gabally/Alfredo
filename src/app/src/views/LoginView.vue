@@ -2,6 +2,7 @@
   <div class="f-center">
     <form @submit.prevent="login()" class="form">
       <h2>Alfredo authentication</h2>
+      <img src="img/icon-512x512.png" width="128" height="128" alt="">
       <input
         v-model="username"
         required
@@ -81,5 +82,10 @@ export default {
 }
 .disabled {
   background: rgb(145, 144, 144);
+}
+@media only screen and (max-width: 600px) {
+  .form {
+    width: 70%;
+  }
 }
 </style>

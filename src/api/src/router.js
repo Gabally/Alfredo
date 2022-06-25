@@ -9,6 +9,7 @@ import doorbell from "./controllers/doorbell.js";
 import ambientSensors from "./controllers/ambientSensors.js";
 import presenceDetection from "./controllers/presenceDetection.js";
 import network from "./controllers/network.js";
+import trigger from "./controllers/trigger.js";
 
 const router = express.Router();
 
@@ -22,6 +23,8 @@ router.get("/ringdoorbell", doorbell.ring);
 router.get("/doorbellevents", authenticationcheck.headerAuth,  doorbell.getDoorbellEvents);
 
 router.get("/presence", authenticationcheck.headerAuth,  presenceDetection.whoIsPresent);
+
+router.post("/trigger", authenticationcheck.headerAuth,  trigger.trigger);
 
 router.get("/netstat", authenticationcheck.headerAuth,  network.netStatus);
 router.get("/rebootrouter", authenticationcheck.headerAuth,  network.rebootRouter);

@@ -38,7 +38,7 @@ import NetStat from "../components/NetStat.vue";
 import { io } from "socket.io-client";
 
 export default {
-  inject: ["getJSON", "getToken"],
+  inject: ["getJSON", "getToken", "postJSON"],
   name: "HomeView",
   components: {
     SwitchCard,
@@ -78,8 +78,16 @@ export default {
     });
   },
   methods: {
-    sendTrigger(device, type) {
-      this.socket.emit("trigger", this.selectedRoom, device, type);
+    async sendTrigger(device, type) {
+      let { success, error } = await this.postJSON("/api/trigger", {
+        room: this.selectedRoom,
+        device: device,
+        type: type
+      });
+      if (!success) {
+        alert(error);
+      }
+      //this.socket.emit("trigger", this.selectedRoom, device, type);
     },
     sendToggle(state, device, type) {
       this.socket.emit(state ? "on" : "off", this.selectedRoom, device, type);

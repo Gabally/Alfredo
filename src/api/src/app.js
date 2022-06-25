@@ -4,8 +4,6 @@ import { Server } from "socket.io";
 import * as utils from "./utils.js";
 import { DB } from "./db.js";
 import * as useragent from "express-useragent";
-import fetch from "node-fetch";
-import * as wol from "wol";
 import { SonoffController } from "./devices/SonoffController.js";
 import { ambientSensorsController } from "./devices/ambientSensors.js";
 import router from "./router.js";
@@ -19,7 +17,7 @@ export const reload = () => {
 
 utils.generateVAPIDKeys();
 
-const getDevice = (room ,type, device) => {
+export const getDevice = (room ,type, device) => {
   let devices = config["rooms"][room][type];
   return devices.find(d => d.name === device);
 };
@@ -76,36 +74,6 @@ io.use(async (socket, next) => {
   socket.on("off", (room, device, type) => {
     let { mqtt } = getDevice(room, type, device);
     sonoffs.turnOff(mqtt);
-  });
-  socket.on("trigger", async (room, device, type) => {
-    switch(type) {
-      case "buttons":
-        let { url } = getDevice(room, type, device);
-        try { 
-          await fetch(url);
-        } catch(e) {
-          console.error("HTTP Trigger failed: ");
-          console.error(e);
-        };
-        break;
-      case "wol":
-        let { mac } = getDevice(room, type, device);
-        try { 
-          wol.wake(mac, (err, res) => {
-            if (err) {
-              console.error("Wake-On-Lan failed: ");
-              console.error(err);
-            }
-          });
-        } catch(e) {
-          console.error("Wake-On-Lan failed: ");
-          console.error(e);
-        };
-        break;
-    }
-  });
-  socket.on("getsensordata", (...args) => {
-    
   });
 });
 
